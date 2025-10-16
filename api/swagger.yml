@@ -445,10 +445,7 @@ definitions:
         description: Auth-Scopes of the user, if available
         type: array
         items:
-          type: string
-          enum:
-          - app
-          - cms
+          $ref: '#/definitions/userScope'
         example:
         - app
       sub:
@@ -696,6 +693,11 @@ definitions:
         description: Indicates whether the registration process requires email confirmation
         type: boolean
         example: true
+  userScope:
+    type: string
+    enum:
+    - app
+    - cms
 parameters:
   registrationTokenParam:
     type: string

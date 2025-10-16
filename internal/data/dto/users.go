@@ -17,10 +17,26 @@ type User struct {
 	Username            null.String
 	PasswordHash        null.String
 	IsActive            bool
-	Scopes              []string
+	Scopes              UserScopes
 	LastAuthenticatedAt null.Time
 	UpdatedAt           time.Time
 	Profile             *AppUserProfile
+}
+
+type UserScopes []string
+
+func (s UserScopes) ToTypes() []types.UserScope {
+	result := make([]types.UserScope, len(s))
+
+	for i, scope := range s {
+		result[i] = types.UserScope(scope)
+	}
+
+	return result
+}
+
+func (s UserScopes) ToModels() []string {
+	return []string(s)
 }
 
 func (u User) LastUpdatedAt() time.Time {
@@ -40,7 +56,7 @@ func (u User) ToTypes() *types.GetUserInfoResponse {
 		Sub:       swag.String(u.ID),
 		UpdatedAt: swag.Int64(u.LastUpdatedAt().Unix()),
 		Email:     strfmt.Email(u.Username.String),
-		Scopes:    u.Scopes,
+		Scopes:    u.Scopes.ToTypes(),
 	}
 }
 
@@ -50,7 +66,7 @@ func (u User) ToModels() *models.User {
 		Username:            u.Username,
 		Password:            u.PasswordHash,
 		IsActive:            u.IsActive,
-		Scopes:              u.Scopes,
+		Scopes:              u.Scopes.ToModels(),
 		LastAuthenticatedAt: u.LastAuthenticatedAt,
 	}
 }

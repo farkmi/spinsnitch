@@ -30,7 +30,7 @@ func TestGetUserInfo(t *testing.T) {
 		test.Snapshoter.Skip([]string{"UpdatedAt"}).Save(t, response)
 
 		for _, scope := range fix.User1.Scopes {
-			assert.Contains(t, response.Scopes, scope)
+			assert.Contains(t, response.Scopes, types.UserScope(scope))
 		}
 
 		appUserProfile, err := models.FindAppUserProfile(ctx, s.DB, fix.User1.ID, models.AccessTokenColumns.UpdatedAt)
@@ -58,7 +58,7 @@ func TestGetUserInfoMinimal(t *testing.T) {
 		assert.Equal(t, strfmt.Email(fix.User1.Username.String), response.Email)
 
 		for _, scope := range fix.User1.Scopes {
-			assert.Contains(t, response.Scopes, scope)
+			assert.Contains(t, response.Scopes, types.UserScope(scope))
 		}
 
 		user, err := models.FindUser(ctx, s.DB, fix.User1.ID, models.UserColumns.UpdatedAt)

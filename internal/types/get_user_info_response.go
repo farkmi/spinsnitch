@@ -7,7 +7,6 @@ package types
 
 import (
 	"context"
-	"encoding/json"
 	"strconv"
 
 	"github.com/go-openapi/errors"
@@ -29,7 +28,7 @@ type GetUserInfoResponse struct {
 
 	// Auth-Scopes of the user, if available
 	// Example: ["app"]
-	Scopes []string `json:"scopes"`
+	Scopes []UserScope `json:"scopes"`
 
 	// ID of user
 	// Example: 82ebdfad-c586-4407-a873-4cc1c33d56fc
@@ -84,25 +83,6 @@ func (m *GetUserInfoResponse) validateEmail(formats strfmt.Registry) error {
 	return nil
 }
 
-var getUserInfoResponseScopesItemsEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["app","cms"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		getUserInfoResponseScopesItemsEnum = append(getUserInfoResponseScopesItemsEnum, v)
-	}
-}
-
-func (m *GetUserInfoResponse) validateScopesItemsEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, getUserInfoResponseScopesItemsEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
 func (m *GetUserInfoResponse) validateScopes(formats strfmt.Registry) error {
 	if swag.IsZero(m.Scopes) { // not required
 		return nil
@@ -110,8 +90,12 @@ func (m *GetUserInfoResponse) validateScopes(formats strfmt.Registry) error {
 
 	for i := 0; i < len(m.Scopes); i++ {
 
-		// value enum
-		if err := m.validateScopesItemsEnum("scopes"+"."+strconv.Itoa(i), "body", m.Scopes[i]); err != nil {
+		if err := m.Scopes[i].Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("scopes" + "." + strconv.Itoa(i))
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("scopes" + "." + strconv.Itoa(i))
+			}
 			return err
 		}
 
@@ -138,8 +122,35 @@ func (m *GetUserInfoResponse) validateUpdatedAt(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this get user info response based on context it is used
+// ContextValidate validate this get user info response based on the context it is used
 func (m *GetUserInfoResponse) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateScopes(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *GetUserInfoResponse) contextValidateScopes(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.Scopes); i++ {
+
+		if err := m.Scopes[i].ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("scopes" + "." + strconv.Itoa(i))
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("scopes" + "." + strconv.Itoa(i))
+			}
+			return err
+		}
+
+	}
+
 	return nil
 }
 

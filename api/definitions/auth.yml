@@ -14,6 +14,11 @@ definitions:
         format: uuid4
         description: ID of user
         example: 891d37d3-c74f-493e-aea8-af73efd92016
+  UserScope:
+    type: string
+    enum:
+      - "app"
+      - "cms"
   GetUserInfoResponse:
     type: object
     required:
@@ -37,10 +42,7 @@ definitions:
       scopes:
         type: array
         items:
-          type: string
-          enum:
-            - "app"
-            - "cms"
+          $ref: "#/definitions/UserScope"
         description: Auth-Scopes of the user, if available
         example: ["app"]
   PostChangePasswordPayload:

@@ -18,7 +18,7 @@ func LocalUserToDTO(user *models.User) dto.User {
 		ID:                  user.ID,
 		Username:            user.Username,
 		IsActive:            user.IsActive,
-		Scopes:              user.Scopes,
+		Scopes:              dto.UserScopes(user.Scopes),
 		LastAuthenticatedAt: user.LastAuthenticatedAt,
 		UpdatedAt:           user.UpdatedAt,
 		PasswordHash:        user.Password,
