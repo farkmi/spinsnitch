@@ -53,7 +53,7 @@ go-lint: ##- (opt) Runs golangci-lint.
 go-generate-handlers: ##- (opt) Generates the internal/api/handlers/handlers.go binding.
 	gsdev handlers gen
 
-go-generate: ##- Runs go generate.
+go-generate: sql ##- Runs go generate (depends on sql to ensure models exist).
 	@go generate ./...
 
 check-handlers: ##- (opt) Checks if implemented handlers match their spec (path).
