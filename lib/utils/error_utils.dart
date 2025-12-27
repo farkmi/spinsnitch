@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 class ErrorUtils {
   static void showErrorSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.showSnackBar(
       SnackBar(
         content: Text(message),
         backgroundColor: Colors.redAccent,
@@ -12,7 +13,7 @@ class ErrorUtils {
           label: 'DISMISS',
           textColor: Colors.white,
           onPressed: () {
-            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            messenger.hideCurrentSnackBar();
           },
         ),
       ),

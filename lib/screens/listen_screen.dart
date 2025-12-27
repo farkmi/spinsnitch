@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:spinsnitch_api/api.dart';
 import '../auth/auth_provider.dart';
+import '../services/recognition_service.dart';
 import '../utils/error_utils.dart';
 
 class ListenScreen extends StatefulWidget {
@@ -17,12 +19,39 @@ class _ListenScreenState extends State<ListenScreen> {
   List<VinylRecord> _filteredVinyls = [];
   bool _isLoading = true;
   final TextEditingController _searchController = TextEditingController();
+  
+  StreamSubscription? _recognitionSubscription;
+  RecognizedTrack? _lastTrack;
+  bool _isAutoMode = false;
 
   @override
   void initState() {
     super.initState();
     _vinylApi = VinylApi(context.read<AuthProvider>().apiClient);
     _fetchVinyls();
+    _setupRecognition();
+  }
+
+  @override
+  void dispose() {
+    _recognitionSubscription?.cancel();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _setupRecognition() {
+    final recognitionService = context.read<RecognitionService>();
+    
+    _recognitionSubscription = recognitionService.trackStream.listen((track) {
+      if (mounted) {
+        setState(() {
+          _lastTrack = track;
+        });
+        if (_isAutoMode) {
+          _registerPlayRaw(track.artist, track.title);
+        }
+      }
+    });
   }
 
   Future<void> _fetchVinyls() async {
@@ -52,31 +81,91 @@ class _ListenScreenState extends State<ListenScreen> {
     });
   }
 
-  Future<void> _registerPlay(VinylRecord vinyl) async {
+  Future<void> _registerPlayRaw(String artist, String title) async {
     try {
-      final payload = PlayPayload(artist: vinyl.artist, title: vinyl.title);
+      final payload = PlayPayload(artist: artist, title: title);
       await _vinylApi.postPlayRoute(payload: payload);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Recorded play for ${vinyl.title}!')),
+          SnackBar(
+            content: Text('Recorded play for $title by $artist'),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.teal[700],
+          ),
         );
       }
     } catch (e) {
       if (mounted) {
-        ErrorUtils.showErrorSnackBar(context, 'Failed to record play: $e');
+        ErrorUtils.showErrorSnackBar(context, 'Auto-record failed: $e');
       }
     }
+  }
+
+  Future<void> _registerPlay(VinylRecord vinyl) async {
+    await _registerPlayRaw(vinyl.artist, vinyl.title);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Recording Play'),
+        title: const Text('Listening'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(_isAutoMode ? Icons.auto_awesome : Icons.auto_awesome_outlined),
+            color: _isAutoMode ? Colors.teal : null,
+            onPressed: () async {
+              final recognitionService = context.read<RecognitionService>();
+              if (!_isAutoMode) {
+                final hasPermission = await recognitionService.hasPermission();
+                if (!hasPermission) {
+                  await recognitionService.openPermissionSettings();
+                  return;
+                }
+                recognitionService.startListening();
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Auto-Recognition Enabled')),
+                  );
+                }
+              } else {
+                recognitionService.stopListening();
+              }
+              
+              if (mounted) {
+                setState(() {
+                  _isAutoMode = !_isAutoMode;
+                });
+              }
+            },
+            tooltip: 'Toggle Auto-Recognition',
+          ),
+        ],
       ),
       body: Column(
         children: [
+          if (_lastTrack != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Card(
+                color: Colors.teal.withAlpha(25),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: const BorderSide(color: Colors.teal, width: 0.5),
+                ),
+                child: ListTile(
+                  leading: const Icon(Icons.music_note, color: Colors.teal),
+                  title: const Text('Last Recognized (System)'),
+                  subtitle: Text('${_lastTrack!.title} • ${_lastTrack!.artist}'),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.add_circle_outline),
+                    onPressed: () => _registerPlayRaw(_lastTrack!.artist, _lastTrack!.title),
+                    tooltip: 'Record this play',
+                  ),
+                ),
+              ),
+            ),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(

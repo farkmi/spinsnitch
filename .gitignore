@@ -55,4 +55,5 @@ openapitools.json
 # Local envs
 .env
 .env.*
+.env.json
 

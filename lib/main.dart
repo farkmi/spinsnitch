@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'auth/auth_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/main_navigation_wrapper.dart';
+import 'services/recognition_service.dart';
+import 'config.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,8 +15,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => AuthProvider(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider(apiBaseUrl: AppConfig.apiBaseUrl)),
+        Provider(create: (_) => RecognitionService()),
+      ],
       child: MaterialApp(
         title: 'SpinSnitch',
         debugShowCheckedModeBanner: false,
