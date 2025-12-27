@@ -65,7 +65,7 @@ func TestPostVinyl(t *testing.T) {
 		assert.Equal(t, int64(12345), *response.DiscogsID)
 		assert.Equal(t, int64(2013), response.Year)
 		// We expect the image to be downloaded and a local static path returned
-		assert.Contains(t, response.CoverImage, "/static/covers/12345.jpg")
+		assert.Contains(t, response.CoverImage, "/assets/mnt/covers/12345.jpg")
 
 		// Invalid Payload
 		resBad := test.PerformRequest(t, s, "POST", "/api/v1/vinyls", nil, authHeaders)

@@ -256,8 +256,8 @@ func (s *Service) downloadAndSaveCover(ctx context.Context, release *discogs.Rel
 		return ""
 	}
 
-	// Save to /app/data/public/covers/{id}.jpg
-	saveDir := "/app/data/public/covers"
+	// Save to /app/assets/mnt/covers/{id}.jpg
+	saveDir := "/app/assets/mnt/covers"
 	if err := os.MkdirAll(saveDir, 0755); err != nil {
 		return ""
 	}
@@ -270,5 +270,5 @@ func (s *Service) downloadAndSaveCover(ctx context.Context, release *discogs.Rel
 		return ""
 	}
 
-	return fmt.Sprintf("/static/covers/%s", filename)
+	return fmt.Sprintf("/assets/mnt/covers/%s", filename)
 }

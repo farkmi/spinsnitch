@@ -14,6 +14,7 @@ import (
 const (
 	PlainTestUserPassword  = "password"
 	HashedTestUserPassword = "$argon2id$v=19$m=65536,t=1,p=4$RFO8ulg2c2zloG0029pAUQ$2Po6NUIhVCMm9vivVDuzo7k5KVWfZzJJfeXzC+n+row" //nolint:gosec
+	InitialFixtureTime     = "2024-01-01T00:00:00Z"
 )
 
 // Insertable represents a common interface for all model instances so they may be inserted via the Inserts() func
@@ -46,7 +47,10 @@ type FixtureMap struct {
 // Fixtures returns a function wrapping our fixtures, which tests are allowed to manipulate.
 // Each test (which may run concurrently) receives a fresh copy, preventing side effects between test runs.
 func Fixtures() FixtureMap {
-	now := time.Now()
+	now, err := time.Parse(time.RFC3339, InitialFixtureTime)
+	if err != nil {
+		panic(fmt.Errorf("failed to parse InitialFixtureTime: %w", err))
+	}
 	f := FixtureMap{}
 
 	f.User1 = &models.User{

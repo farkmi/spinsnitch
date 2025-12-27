@@ -241,7 +241,7 @@ func Init(s *api.Server) error {
 	}
 
 	// Serve static files (covers etc)
-	s.Echo.Static("/static", "/app/data/public")
+	s.Echo.Static("/assets", "/app/assets")
 
 	// ---
 	// Finally attach our handlers
