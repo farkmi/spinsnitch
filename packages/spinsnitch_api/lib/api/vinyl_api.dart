@@ -63,6 +63,64 @@ class VinylApi {
     return null;
   }
 
+  /// Get recent track plays
+  ///
+  /// Note: This method returns the HTTP [Response].
+  ///
+  /// Parameters:
+  ///
+  /// * [int] limit:
+  ///   Max number of plays to return
+  Future<Response> getRecentPlaysRouteWithHttpInfo({ int? limit, }) async {
+    // ignore: prefer_const_declarations
+    final path = r'/api/v1/vinyls/recent-plays';
+
+    // ignore: prefer_final_locals
+    Object? postBody;
+
+    final queryParams = <QueryParam>[];
+    final headerParams = <String, String>{};
+    final formParams = <String, String>{};
+
+    if (limit != null) {
+      queryParams.addAll(_queryParams('', 'limit', limit));
+    }
+
+    const contentTypes = <String>[];
+
+
+    return apiClient.invokeAPI(
+      path,
+      'GET',
+      queryParams,
+      postBody,
+      headerParams,
+      formParams,
+      contentTypes.isEmpty ? null : contentTypes.first,
+    );
+  }
+
+  /// Get recent track plays
+  ///
+  /// Parameters:
+  ///
+  /// * [int] limit:
+  ///   Max number of plays to return
+  Future<RecentPlaysResponse?> getRecentPlaysRoute({ int? limit, }) async {
+    final response = await getRecentPlaysRouteWithHttpInfo( limit: limit, );
+    if (response.statusCode >= HttpStatus.badRequest) {
+      throw ApiException(response.statusCode, await _decodeBodyBytes(response));
+    }
+    // When a remote server returns no body with a status of 204, we shall not decode it.
+    // At the time of writing this, `dart:convert` will throw an "Unexpected end of input"
+    // FormatException when trying to decode an empty string.
+    if (response.body.isNotEmpty && response.statusCode != HttpStatus.noContent) {
+      return await apiClient.deserializeAsync(await _decodeBodyBytes(response), 'RecentPlaysResponse',) as RecentPlaysResponse;
+    
+    }
+    return null;
+  }
+
   /// Search for vinyl records on Discogs
   ///
   /// Note: This method returns the HTTP [Response].

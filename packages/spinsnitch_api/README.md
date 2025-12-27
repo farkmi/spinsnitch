@@ -79,6 +79,7 @@ Class | Method | HTTP request | Description
 *CommonApi* | [**getVersionRoute**](doc//CommonApi.md#getversionroute) | **GET** /-/version | Get version
 *PushApi* | [**putUpdatePushTokenRoute**](doc//PushApi.md#putupdatepushtokenroute) | **PUT** /api/v1/push/token | Adds a push token to the user
 *VinylApi* | [**getMistreatedRoute**](doc//VinylApi.md#getmistreatedroute) | **GET** /api/v1/vinyls/mistreated | Get mistreated records
+*VinylApi* | [**getRecentPlaysRoute**](doc//VinylApi.md#getrecentplaysroute) | **GET** /api/v1/vinyls/recent-plays | Get recent track plays
 *VinylApi* | [**getVinylSearchRoute**](doc//VinylApi.md#getvinylsearchroute) | **GET** /api/v1/vinyls/search | Search for vinyl records on Discogs
 *VinylApi* | [**getVinylsRoute**](doc//VinylApi.md#getvinylsroute) | **GET** /api/v1/vinyls | List all vinyl records
 *VinylApi* | [**postPlayRoute**](doc//VinylApi.md#postplayroute) | **POST** /api/v1/vinyls/play | Register a play
@@ -108,7 +109,9 @@ Class | Method | HTTP request | Description
  - [PublicHttpErrorType](doc//PublicHttpErrorType.md)
  - [PublicHttpValidationError](doc//PublicHttpValidationError.md)
  - [PutUpdatePushTokenPayload](doc//PutUpdatePushTokenPayload.md)
+ - [RecentPlaysResponse](doc//RecentPlaysResponse.md)
  - [RegisterResponse](doc//RegisterResponse.md)
+ - [TrackPlay](doc//TrackPlay.md)
  - [UserScope](doc//UserScope.md)
  - [VinylPayload](doc//VinylPayload.md)
  - [VinylRecord](doc//VinylRecord.md)

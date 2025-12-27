@@ -10,6 +10,7 @@ All URIs are relative to *http://localhost*
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**getMistreatedRoute**](VinylApi.md#getmistreatedroute) | **GET** /api/v1/vinyls/mistreated | Get mistreated records
+[**getRecentPlaysRoute**](VinylApi.md#getrecentplaysroute) | **GET** /api/v1/vinyls/recent-plays | Get recent track plays
 [**getVinylSearchRoute**](VinylApi.md#getvinylsearchroute) | **GET** /api/v1/vinyls/search | Search for vinyl records on Discogs
 [**getVinylsRoute**](VinylApi.md#getvinylsroute) | **GET** /api/v1/vinyls | List all vinyl records
 [**postPlayRoute**](VinylApi.md#postplayroute) | **POST** /api/v1/vinyls/play | Register a play
@@ -45,6 +46,51 @@ This endpoint does not need any parameter.
 ### Return type
 
 [**List<MistreatedRecord>**](MistreatedRecord.md)
+
+### Authorization
+
+[Bearer](../README.md#Bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getRecentPlaysRoute**
+> RecentPlaysResponse getRecentPlaysRoute(limit)
+
+Get recent track plays
+
+### Example
+```dart
+import 'package:spinsnitch_api/api.dart';
+// TODO Configure API key authorization: Bearer
+//defaultApiClient.getAuthentication<ApiKeyAuth>('Bearer').apiKey = 'YOUR_API_KEY';
+// uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+//defaultApiClient.getAuthentication<ApiKeyAuth>('Bearer').apiKeyPrefix = 'Bearer';
+
+final api_instance = VinylApi();
+final limit = 56; // int | Max number of plays to return
+
+try {
+    final result = api_instance.getRecentPlaysRoute(limit);
+    print(result);
+} catch (e) {
+    print('Exception when calling VinylApi->getRecentPlaysRoute: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **limit** | **int**| Max number of plays to return | [optional] [default to 10]
+
+### Return type
+
+[**RecentPlaysResponse**](RecentPlaysResponse.md)
 
 ### Authorization
 

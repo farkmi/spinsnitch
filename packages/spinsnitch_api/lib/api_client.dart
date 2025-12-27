@@ -220,8 +220,12 @@ class ApiClient {
           return PublicHttpValidationError.fromJson(value);
         case 'PutUpdatePushTokenPayload':
           return PutUpdatePushTokenPayload.fromJson(value);
+        case 'RecentPlaysResponse':
+          return RecentPlaysResponse.fromJson(value);
         case 'RegisterResponse':
           return RegisterResponse.fromJson(value);
+        case 'TrackPlay':
+          return TrackPlay.fromJson(value);
         case 'UserScope':
           return UserScopeTypeTransformer().decode(value);
         case 'VinylPayload':
