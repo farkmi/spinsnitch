@@ -2,11 +2,11 @@
 package handlers
 
 import (
-	"allaboutapps.dev/aw/go-starter/internal/api"
-	"allaboutapps.dev/aw/go-starter/internal/api/handlers/auth"
-	"allaboutapps.dev/aw/go-starter/internal/api/handlers/common"
-	"allaboutapps.dev/aw/go-starter/internal/api/handlers/push"
-	"allaboutapps.dev/aw/go-starter/internal/api/handlers/wellknown"
+	"github.com/farkmi/spinsnitch-server/internal/api"
+	"github.com/farkmi/spinsnitch-server/internal/api/handlers/auth"
+	"github.com/farkmi/spinsnitch-server/internal/api/handlers/common"
+	"github.com/farkmi/spinsnitch-server/internal/api/handlers/push"
+	"github.com/farkmi/spinsnitch-server/internal/api/handlers/wellknown"
 	"github.com/labstack/echo/v4"
 )
 

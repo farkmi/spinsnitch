@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"os"
 
-	"allaboutapps.dev/aw/go-starter/cmd/db"
-	"allaboutapps.dev/aw/go-starter/cmd/env"
-	"allaboutapps.dev/aw/go-starter/cmd/probe"
-	"allaboutapps.dev/aw/go-starter/cmd/server"
-	"allaboutapps.dev/aw/go-starter/internal/config"
+	"github.com/farkmi/spinsnitch-server/cmd/db"
+	"github.com/farkmi/spinsnitch-server/cmd/env"
+	"github.com/farkmi/spinsnitch-server/cmd/probe"
+	"github.com/farkmi/spinsnitch-server/cmd/server"
+	"github.com/farkmi/spinsnitch-server/internal/config"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )

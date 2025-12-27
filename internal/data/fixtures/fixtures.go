@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"allaboutapps.dev/aw/go-starter/internal/models"
-	"allaboutapps.dev/aw/go-starter/internal/util"
 	"github.com/aarondl/sqlboiler/v4/boil"
+	"github.com/farkmi/spinsnitch-server/internal/models"
+	"github.com/farkmi/spinsnitch-server/internal/util"
 )
 
 // Live Service fixtures to be applied by manually running the CLI "app db seed"

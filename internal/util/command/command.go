@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"allaboutapps.dev/aw/go-starter/internal/api"
-	"allaboutapps.dev/aw/go-starter/internal/config"
+	"github.com/farkmi/spinsnitch-server/internal/api"
+	"github.com/farkmi/spinsnitch-server/internal/config"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"

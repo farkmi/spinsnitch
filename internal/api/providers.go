@@ -6,14 +6,14 @@ import (
 	"testing"
 	"time"
 
-	"allaboutapps.dev/aw/go-starter/internal/auth"
-	"allaboutapps.dev/aw/go-starter/internal/config"
-	"allaboutapps.dev/aw/go-starter/internal/i18n"
-	"allaboutapps.dev/aw/go-starter/internal/mailer"
-	"allaboutapps.dev/aw/go-starter/internal/persistence"
-	"allaboutapps.dev/aw/go-starter/internal/push"
-	"allaboutapps.dev/aw/go-starter/internal/push/provider"
 	"github.com/dropbox/godropbox/time2"
+	"github.com/farkmi/spinsnitch-server/internal/auth"
+	"github.com/farkmi/spinsnitch-server/internal/config"
+	"github.com/farkmi/spinsnitch-server/internal/i18n"
+	"github.com/farkmi/spinsnitch-server/internal/mailer"
+	"github.com/farkmi/spinsnitch-server/internal/persistence"
+	"github.com/farkmi/spinsnitch-server/internal/push"
+	"github.com/farkmi/spinsnitch-server/internal/push/provider"
 	"github.com/rs/zerolog/log"
 )
 

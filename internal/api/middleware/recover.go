@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"allaboutapps.dev/aw/go-starter/internal/util"
+	"github.com/farkmi/spinsnitch-server/internal/util"
 
 	"github.com/labstack/echo/v4"
 )

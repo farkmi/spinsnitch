@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"testing"
 
-	"allaboutapps.dev/aw/go-starter/internal/api/httperrors"
-	"allaboutapps.dev/aw/go-starter/internal/types"
+	"github.com/farkmi/spinsnitch-server/internal/api/httperrors"
+	"github.com/farkmi/spinsnitch-server/internal/types"
 	"github.com/go-openapi/swag"
 	"github.com/stretchr/testify/require"
 )

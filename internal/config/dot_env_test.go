@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"allaboutapps.dev/aw/go-starter/internal/config"
-	"allaboutapps.dev/aw/go-starter/internal/util"
+	"github.com/farkmi/spinsnitch-server/internal/config"
+	"github.com/farkmi/spinsnitch-server/internal/util"
 	"github.com/stretchr/testify/assert"
 )
 

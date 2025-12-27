@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"testing"
 
-	"allaboutapps.dev/aw/go-starter/internal/api"
-	"allaboutapps.dev/aw/go-starter/internal/api/middleware"
-	"allaboutapps.dev/aw/go-starter/internal/test"
+	"github.com/farkmi/spinsnitch-server/internal/api"
+	"github.com/farkmi/spinsnitch-server/internal/api/middleware"
+	"github.com/farkmi/spinsnitch-server/internal/test"
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
 

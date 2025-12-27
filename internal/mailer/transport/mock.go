@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"allaboutapps.dev/aw/go-starter/internal/util"
+	"github.com/farkmi/spinsnitch-server/internal/util"
 	"github.com/jordan-wright/email"
 )
 

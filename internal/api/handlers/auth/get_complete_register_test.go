@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"testing"
 
-	"allaboutapps.dev/aw/go-starter/internal/api"
-	"allaboutapps.dev/aw/go-starter/internal/test"
-	"allaboutapps.dev/aw/go-starter/internal/test/fixtures"
+	"github.com/farkmi/spinsnitch-server/internal/api"
+	"github.com/farkmi/spinsnitch-server/internal/test"
+	"github.com/farkmi/spinsnitch-server/internal/test/fixtures"
 	"github.com/stretchr/testify/require"
 )
 

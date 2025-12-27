@@ -9,10 +9,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"allaboutapps.dev/aw/go-starter/internal/config"
-	"allaboutapps.dev/aw/go-starter/internal/data/dto"
-	"allaboutapps.dev/aw/go-starter/internal/mailer/transport"
-	"allaboutapps.dev/aw/go-starter/internal/util"
+	"github.com/farkmi/spinsnitch-server/internal/config"
+	"github.com/farkmi/spinsnitch-server/internal/data/dto"
+	"github.com/farkmi/spinsnitch-server/internal/mailer/transport"
+	"github.com/farkmi/spinsnitch-server/internal/util"
 	"github.com/jordan-wright/email"
 	"github.com/rs/zerolog/log"
 )

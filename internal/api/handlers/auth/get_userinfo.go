@@ -4,9 +4,9 @@ import (
 	"errors"
 	"net/http"
 
-	"allaboutapps.dev/aw/go-starter/internal/api"
-	"allaboutapps.dev/aw/go-starter/internal/auth"
-	"allaboutapps.dev/aw/go-starter/internal/util"
+	"github.com/farkmi/spinsnitch-server/internal/api"
+	"github.com/farkmi/spinsnitch-server/internal/auth"
+	"github.com/farkmi/spinsnitch-server/internal/util"
 	"github.com/labstack/echo/v4"
 )
 

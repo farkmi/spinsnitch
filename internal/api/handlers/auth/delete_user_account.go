@@ -3,11 +3,11 @@ package auth
 import (
 	"net/http"
 
-	"allaboutapps.dev/aw/go-starter/internal/api"
-	"allaboutapps.dev/aw/go-starter/internal/auth"
-	"allaboutapps.dev/aw/go-starter/internal/data/dto"
-	"allaboutapps.dev/aw/go-starter/internal/types"
-	"allaboutapps.dev/aw/go-starter/internal/util"
+	"github.com/farkmi/spinsnitch-server/internal/api"
+	"github.com/farkmi/spinsnitch-server/internal/auth"
+	"github.com/farkmi/spinsnitch-server/internal/data/dto"
+	"github.com/farkmi/spinsnitch-server/internal/types"
+	"github.com/farkmi/spinsnitch-server/internal/util"
 	"github.com/go-openapi/swag"
 	"github.com/labstack/echo/v4"
 )

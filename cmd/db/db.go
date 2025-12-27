@@ -1,7 +1,7 @@
 package db
 
 import (
-	"allaboutapps.dev/aw/go-starter/internal/util/command"
+	"github.com/farkmi/spinsnitch-server/internal/util/command"
 	"github.com/spf13/cobra"
 )
 

@@ -5,11 +5,11 @@ import (
 	"database/sql"
 	"fmt"
 
-	"allaboutapps.dev/aw/go-starter/internal/api"
-	"allaboutapps.dev/aw/go-starter/internal/api/handlers/common"
-	"allaboutapps.dev/aw/go-starter/internal/config"
-	"allaboutapps.dev/aw/go-starter/internal/util"
-	"allaboutapps.dev/aw/go-starter/internal/util/command"
+	"github.com/farkmi/spinsnitch-server/internal/api"
+	"github.com/farkmi/spinsnitch-server/internal/api/handlers/common"
+	"github.com/farkmi/spinsnitch-server/internal/config"
+	"github.com/farkmi/spinsnitch-server/internal/util"
+	"github.com/farkmi/spinsnitch-server/internal/util/command"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )

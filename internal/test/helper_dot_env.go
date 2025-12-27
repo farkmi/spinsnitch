@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"allaboutapps.dev/aw/go-starter/internal/config"
-	"allaboutapps.dev/aw/go-starter/internal/util"
+	"github.com/farkmi/spinsnitch-server/internal/config"
+	"github.com/farkmi/spinsnitch-server/internal/util"
 )
 
 // DotEnvLoadLocalOrSkipTest tries to load the `.env.local` file in the projectroot

@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"allaboutapps.dev/aw/go-starter/internal/test"
-	"allaboutapps.dev/aw/go-starter/internal/test/fixtures"
+	"github.com/farkmi/spinsnitch-server/internal/test"
+	"github.com/farkmi/spinsnitch-server/internal/test/fixtures"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

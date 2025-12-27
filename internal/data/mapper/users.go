@@ -1,8 +1,8 @@
 package mapper
 
 import (
-	"allaboutapps.dev/aw/go-starter/internal/data/dto"
-	"allaboutapps.dev/aw/go-starter/internal/models"
+	"github.com/farkmi/spinsnitch-server/internal/data/dto"
+	"github.com/farkmi/spinsnitch-server/internal/models"
 )
 
 func LocalAppUserProfileToDTO(appUserProfile *models.AppUserProfile) dto.AppUserProfile {

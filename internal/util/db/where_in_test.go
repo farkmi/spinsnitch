@@ -3,11 +3,11 @@ package db_test
 import (
 	"testing"
 
-	"allaboutapps.dev/aw/go-starter/internal/models"
-	"allaboutapps.dev/aw/go-starter/internal/test"
-	"allaboutapps.dev/aw/go-starter/internal/util/db"
 	"github.com/aarondl/sqlboiler/v4/queries"
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
+	"github.com/farkmi/spinsnitch-server/internal/models"
+	"github.com/farkmi/spinsnitch-server/internal/test"
+	"github.com/farkmi/spinsnitch-server/internal/util/db"
 )
 
 func TestWhereIn(t *testing.T) {

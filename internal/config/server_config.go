@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"allaboutapps.dev/aw/go-starter/internal/mailer/transport"
-	"allaboutapps.dev/aw/go-starter/internal/push/provider"
-	"allaboutapps.dev/aw/go-starter/internal/util"
+	"github.com/farkmi/spinsnitch-server/internal/mailer/transport"
+	"github.com/farkmi/spinsnitch-server/internal/push/provider"
+	"github.com/farkmi/spinsnitch-server/internal/util"
 	"github.com/rs/zerolog"
 	"golang.org/x/text/language"
 )

@@ -3,7 +3,7 @@ package auth
 import (
 	"time"
 
-	"allaboutapps.dev/aw/go-starter/internal/data/dto"
+	"github.com/farkmi/spinsnitch-server/internal/data/dto"
 )
 
 type Result struct {

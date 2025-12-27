@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"allaboutapps.dev/aw/go-starter/internal/util"
+	"github.com/farkmi/spinsnitch-server/internal/util"
 )
 
 // The DatabaseMigrationTable name is baked into the binary

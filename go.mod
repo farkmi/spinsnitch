@@ -1,4 +1,4 @@
-module allaboutapps.dev/aw/go-starter
+module github.com/farkmi/spinsnitch-server
 
 go 1.25.5
 

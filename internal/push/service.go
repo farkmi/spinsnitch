@@ -6,9 +6,9 @@ import (
 	"errors"
 	"fmt"
 
-	"allaboutapps.dev/aw/go-starter/internal/data/dto"
-	"allaboutapps.dev/aw/go-starter/internal/models"
-	"allaboutapps.dev/aw/go-starter/internal/util"
+	"github.com/farkmi/spinsnitch-server/internal/data/dto"
+	"github.com/farkmi/spinsnitch-server/internal/models"
+	"github.com/farkmi/spinsnitch-server/internal/util"
 )
 
 type ProviderType string

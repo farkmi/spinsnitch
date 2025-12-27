@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"allaboutapps.dev/aw/go-starter/internal/types"
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
+	"github.com/farkmi/spinsnitch-server/internal/types"
 )
 
 func OrderBy(orderDir types.OrderDir, path ...string) qm.QueryMod {

@@ -7,11 +7,11 @@
 package api
 
 import (
-	"allaboutapps.dev/aw/go-starter/internal/auth"
-	"allaboutapps.dev/aw/go-starter/internal/config"
-	"allaboutapps.dev/aw/go-starter/internal/data/local"
-	"allaboutapps.dev/aw/go-starter/internal/metrics"
 	"database/sql"
+	"github.com/farkmi/spinsnitch-server/internal/auth"
+	"github.com/farkmi/spinsnitch-server/internal/config"
+	"github.com/farkmi/spinsnitch-server/internal/data/local"
+	"github.com/farkmi/spinsnitch-server/internal/metrics"
 	"github.com/google/wire"
 	"testing"
 )

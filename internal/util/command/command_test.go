@@ -5,9 +5,9 @@ import (
 	"errors"
 	"testing"
 
-	"allaboutapps.dev/aw/go-starter/internal/api"
-	"allaboutapps.dev/aw/go-starter/internal/test"
-	"allaboutapps.dev/aw/go-starter/internal/util/command"
+	"github.com/farkmi/spinsnitch-server/internal/api"
+	"github.com/farkmi/spinsnitch-server/internal/test"
+	"github.com/farkmi/spinsnitch-server/internal/util/command"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

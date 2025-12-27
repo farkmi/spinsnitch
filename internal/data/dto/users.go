@@ -3,10 +3,10 @@ package dto
 import (
 	"time"
 
-	"allaboutapps.dev/aw/go-starter/internal/models"
-	"allaboutapps.dev/aw/go-starter/internal/types"
-	"allaboutapps.dev/aw/go-starter/internal/util"
 	"github.com/aarondl/null/v8"
+	"github.com/farkmi/spinsnitch-server/internal/models"
+	"github.com/farkmi/spinsnitch-server/internal/types"
+	"github.com/farkmi/spinsnitch-server/internal/util"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/strfmt/conv"
 	"github.com/go-openapi/swag"

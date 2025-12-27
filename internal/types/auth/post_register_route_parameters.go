@@ -13,7 +13,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 
-	"allaboutapps.dev/aw/go-starter/internal/types"
+	"github.com/farkmi/spinsnitch-server/internal/types"
 )
 
 // NewPostRegisterRouteParams creates a new PostRegisterRouteParams object

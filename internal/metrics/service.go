@@ -5,10 +5,10 @@ import (
 	"database/sql"
 	"fmt"
 
-	"allaboutapps.dev/aw/go-starter/internal/config"
-	"allaboutapps.dev/aw/go-starter/internal/metrics/users"
-	"allaboutapps.dev/aw/go-starter/internal/util"
 	"github.com/dlmiddlecote/sqlstats"
+	"github.com/farkmi/spinsnitch-server/internal/config"
+	"github.com/farkmi/spinsnitch-server/internal/metrics/users"
+	"github.com/farkmi/spinsnitch-server/internal/util"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
