@@ -38,53 +38,124 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // If auth state changes, parent widget should rebuild to switch screen,
-    // but just in case, we can listen or let the provider handle navigation logic via main wrapper.
     final auth = context.watch<AuthProvider>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Center(
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TextFormField(
-                    controller: _usernameController,
-                    decoration: const InputDecoration(labelText: 'Email'),
-                    validator: (value) =>
-                        value!.isEmpty ? 'Please enter email' : null,
-                  ),
-                  TextFormField(
-                    controller: _passwordController,
-                    decoration: const InputDecoration(labelText: 'Password'),
-                    obscureText: true,
-                    validator: (value) =>
-                        value!.isEmpty ? 'Please enter password' : null,
-                  ),
-                  const SizedBox(height: 20),
-                  auth.isLoading
-                      ? const CircularProgressIndicator()
-                      : ElevatedButton(
-                          onPressed: _login,
-                          child: const Text('Login'),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Theme.of(context).colorScheme.primary.withAlpha(50),
+              Theme.of(context).scaffoldBackgroundColor,
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Center(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.album, size: 100, color: Colors.teal),
+                    const SizedBox(height: 16),
+                    Text(
+                      'SpinSnitch',
+                      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.2,
+                          ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Your personal vinyl companion',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Colors.grey[400],
+                          ),
+                    ),
+                    const SizedBox(height: 48),
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              TextFormField(
+                                controller: _usernameController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Email',
+                                  prefixIcon: Icon(Icons.email_outlined),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                                  ),
+                                ),
+                                validator: (value) =>
+                                    value!.isEmpty ? 'Please enter email' : null,
+                              ),
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                controller: _passwordController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Password',
+                                  prefixIcon: Icon(Icons.lock_outline),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                                  ),
+                                ),
+                                obscureText: true,
+                                validator: (value) =>
+                                    value!.isEmpty ? 'Please enter password' : null,
+                              ),
+                            ],
+                          ),
                         ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const RegisterScreen(),
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: auth.isLoading ? null : _login,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.teal,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                      );
-                    },
-                    child: const Text('Create an account'),
-                  ),
-                ],
+                        child: auth.isLoading
+                            ? const CircularProgressIndicator(color: Colors.white)
+                            : const Text(
+                                'Login',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const RegisterScreen(),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        'Don\'t have an account? Register',
+                        style: TextStyle(color: Colors.teal[300]),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
