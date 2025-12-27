@@ -1,0 +1,99 @@
+package dto
+
+import (
+	"time"
+
+	"github.com/farkmi/spinsnitch-server/internal/models"
+	"github.com/farkmi/spinsnitch-server/internal/types"
+	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
+)
+
+type VinylRecord struct {
+	ID        int
+	Title     string
+	Artist    string
+	DiscogsID int
+	CreatedAt time.Time
+}
+
+func (v *VinylRecord) ToTypes() *types.VinylRecord {
+	return &types.VinylRecord{
+		ID:        swag.Int64(int64(v.ID)),
+		Title:     swag.String(v.Title),
+		Artist:    swag.String(v.Artist),
+		DiscogsID: swag.Int64(int64(v.DiscogsID)),
+		CreatedAt: strfmt.DateTime(v.CreatedAt),
+	}
+}
+
+// Slice wrapper for converting multiple records
+type VinylRecordSlice []*VinylRecord
+
+func (s VinylRecordSlice) ToTypes() []*types.VinylRecord {
+	result := make([]*types.VinylRecord, len(s))
+	for i, v := range s {
+		result[i] = v.ToTypes()
+	}
+	return result
+}
+
+func (s VinylRecordSlice) ToSearchTypes() []*types.VinylSearchResult {
+	result := make([]*types.VinylSearchResult, len(s))
+	for i, v := range s {
+		result[i] = &types.VinylSearchResult{
+			DiscogsID: swag.Int64(int64(v.DiscogsID)),
+			Title:     swag.String(v.Title),
+			Artist:    swag.String(v.Artist),
+		}
+	}
+	return result
+}
+
+// FromModel converts a SQLBoiler model to a DTO
+func VinylRecordFromModel(model *models.VinylRecord) *VinylRecord {
+	return &VinylRecord{
+		ID:        model.ID,
+		Title:     model.Title,
+		Artist:    model.Artist,
+		DiscogsID: model.DiscogsID,
+		CreatedAt: model.CreatedAt,
+	}
+}
+
+// FromModelSlice converts a slice of SQLBoiler models
+func VinylRecordSliceFromModels(ms models.VinylRecordSlice) VinylRecordSlice {
+	result := make(VinylRecordSlice, len(ms))
+	for i, m := range ms {
+		result[i] = VinylRecordFromModel(m)
+	}
+	return result
+}
+
+type MistreatedRecord struct {
+	Title        string
+	Artist       string
+	SideLabel    string
+	NeglectScore float64
+	LastPlayed   time.Time
+}
+
+func (m *MistreatedRecord) ToTypes() *types.MistreatedRecord {
+	return &types.MistreatedRecord{
+		Title:        m.Title,
+		Artist:       m.Artist,
+		SideLabel:    m.SideLabel,
+		NeglectScore: float32(m.NeglectScore),
+		LastPlayed:   strfmt.DateTime(m.LastPlayed),
+	}
+}
+
+type MistreatedRecordSlice []*MistreatedRecord
+
+func (s MistreatedRecordSlice) ToTypes() []*types.MistreatedRecord {
+	result := make([]*types.MistreatedRecord, len(s))
+	for i, m := range s {
+		result[i] = m.ToTypes()
+	}
+	return result
+}

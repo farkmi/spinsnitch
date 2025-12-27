@@ -6,6 +6,7 @@ import (
 	"github.com/farkmi/spinsnitch-server/internal/api/handlers/auth"
 	"github.com/farkmi/spinsnitch-server/internal/api/handlers/common"
 	"github.com/farkmi/spinsnitch-server/internal/api/handlers/push"
+	"github.com/farkmi/spinsnitch-server/internal/api/handlers/vinyl"
 	"github.com/farkmi/spinsnitch-server/internal/api/handlers/wellknown"
 	"github.com/labstack/echo/v4"
 )
@@ -29,6 +30,11 @@ func AttachAllRoutes(s *api.Server) {
 		common.GetSwaggerRoute(s),
 		common.GetVersionRoute(s),
 		push.PutUpdatePushTokenRoute(s),
+		vinyl.GetMistreatedRoute(s),
+		vinyl.GetVinylSearchRoute(s),
+		vinyl.GetVinylsRoute(s),
+		vinyl.PostPlayRoute(s),
+		vinyl.PostVinylRoute(s),
 		wellknown.GetAndroidDigitalAssetLinksRoute(s),
 		wellknown.GetAppleAppSiteAssociationRoute(s),
 	}

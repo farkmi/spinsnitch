@@ -14,6 +14,8 @@ func TestToOne(t *testing.T) {
 	t.Run("PasswordResetTokenToUserUsingUser", testPasswordResetTokenToOneUserUsingUser)
 	t.Run("PushTokenToUserUsingUser", testPushTokenToOneUserUsingUser)
 	t.Run("RefreshTokenToUserUsingUser", testRefreshTokenToOneUserUsingUser)
+	t.Run("TrackToVinylSideUsingVinylSide", testTrackToOneVinylSideUsingVinylSide)
+	t.Run("VinylSideToVinylRecordUsingVinylRecord", testVinylSideToOneVinylRecordUsingVinylRecord)
 }
 
 // TestOneToOne tests cannot be run in parallel
@@ -30,6 +32,8 @@ func TestToMany(t *testing.T) {
 	t.Run("UserToPasswordResetTokens", testUserToManyPasswordResetTokens)
 	t.Run("UserToPushTokens", testUserToManyPushTokens)
 	t.Run("UserToRefreshTokens", testUserToManyRefreshTokens)
+	t.Run("VinylRecordToVinylSides", testVinylRecordToManyVinylSides)
+	t.Run("VinylSideToTracks", testVinylSideToManyTracks)
 }
 
 // TestToOneSet tests cannot be run in parallel
@@ -41,6 +45,8 @@ func TestToOneSet(t *testing.T) {
 	t.Run("PasswordResetTokenToUserUsingPasswordResetTokens", testPasswordResetTokenToOneSetOpUserUsingUser)
 	t.Run("PushTokenToUserUsingPushTokens", testPushTokenToOneSetOpUserUsingUser)
 	t.Run("RefreshTokenToUserUsingRefreshTokens", testRefreshTokenToOneSetOpUserUsingUser)
+	t.Run("TrackToVinylSideUsingTracks", testTrackToOneSetOpVinylSideUsingVinylSide)
+	t.Run("VinylSideToVinylRecordUsingVinylSides", testVinylSideToOneSetOpVinylRecordUsingVinylRecord)
 }
 
 // TestToOneRemove tests cannot be run in parallel
@@ -65,6 +71,8 @@ func TestToManyAdd(t *testing.T) {
 	t.Run("UserToPasswordResetTokens", testUserToManyAddOpPasswordResetTokens)
 	t.Run("UserToPushTokens", testUserToManyAddOpPushTokens)
 	t.Run("UserToRefreshTokens", testUserToManyAddOpRefreshTokens)
+	t.Run("VinylRecordToVinylSides", testVinylRecordToManyAddOpVinylSides)
+	t.Run("VinylSideToTracks", testVinylSideToManyAddOpTracks)
 }
 
 // TestToManySet tests cannot be run in parallel

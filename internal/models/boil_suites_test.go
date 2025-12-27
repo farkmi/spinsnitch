@@ -18,7 +18,10 @@ func TestParent(t *testing.T) {
 	t.Run("PasswordResetTokens", testPasswordResetTokens)
 	t.Run("PushTokens", testPushTokens)
 	t.Run("RefreshTokens", testRefreshTokens)
+	t.Run("Tracks", testTracks)
 	t.Run("Users", testUsers)
+	t.Run("VinylRecords", testVinylRecords)
+	t.Run("VinylSides", testVinylSides)
 }
 
 func TestDelete(t *testing.T) {
@@ -28,7 +31,10 @@ func TestDelete(t *testing.T) {
 	t.Run("PasswordResetTokens", testPasswordResetTokensDelete)
 	t.Run("PushTokens", testPushTokensDelete)
 	t.Run("RefreshTokens", testRefreshTokensDelete)
+	t.Run("Tracks", testTracksDelete)
 	t.Run("Users", testUsersDelete)
+	t.Run("VinylRecords", testVinylRecordsDelete)
+	t.Run("VinylSides", testVinylSidesDelete)
 }
 
 func TestQueryDeleteAll(t *testing.T) {
@@ -38,7 +44,10 @@ func TestQueryDeleteAll(t *testing.T) {
 	t.Run("PasswordResetTokens", testPasswordResetTokensQueryDeleteAll)
 	t.Run("PushTokens", testPushTokensQueryDeleteAll)
 	t.Run("RefreshTokens", testRefreshTokensQueryDeleteAll)
+	t.Run("Tracks", testTracksQueryDeleteAll)
 	t.Run("Users", testUsersQueryDeleteAll)
+	t.Run("VinylRecords", testVinylRecordsQueryDeleteAll)
+	t.Run("VinylSides", testVinylSidesQueryDeleteAll)
 }
 
 func TestSliceDeleteAll(t *testing.T) {
@@ -48,7 +57,10 @@ func TestSliceDeleteAll(t *testing.T) {
 	t.Run("PasswordResetTokens", testPasswordResetTokensSliceDeleteAll)
 	t.Run("PushTokens", testPushTokensSliceDeleteAll)
 	t.Run("RefreshTokens", testRefreshTokensSliceDeleteAll)
+	t.Run("Tracks", testTracksSliceDeleteAll)
 	t.Run("Users", testUsersSliceDeleteAll)
+	t.Run("VinylRecords", testVinylRecordsSliceDeleteAll)
+	t.Run("VinylSides", testVinylSidesSliceDeleteAll)
 }
 
 func TestExists(t *testing.T) {
@@ -58,7 +70,10 @@ func TestExists(t *testing.T) {
 	t.Run("PasswordResetTokens", testPasswordResetTokensExists)
 	t.Run("PushTokens", testPushTokensExists)
 	t.Run("RefreshTokens", testRefreshTokensExists)
+	t.Run("Tracks", testTracksExists)
 	t.Run("Users", testUsersExists)
+	t.Run("VinylRecords", testVinylRecordsExists)
+	t.Run("VinylSides", testVinylSidesExists)
 }
 
 func TestFind(t *testing.T) {
@@ -68,7 +83,10 @@ func TestFind(t *testing.T) {
 	t.Run("PasswordResetTokens", testPasswordResetTokensFind)
 	t.Run("PushTokens", testPushTokensFind)
 	t.Run("RefreshTokens", testRefreshTokensFind)
+	t.Run("Tracks", testTracksFind)
 	t.Run("Users", testUsersFind)
+	t.Run("VinylRecords", testVinylRecordsFind)
+	t.Run("VinylSides", testVinylSidesFind)
 }
 
 func TestBind(t *testing.T) {
@@ -78,7 +96,10 @@ func TestBind(t *testing.T) {
 	t.Run("PasswordResetTokens", testPasswordResetTokensBind)
 	t.Run("PushTokens", testPushTokensBind)
 	t.Run("RefreshTokens", testRefreshTokensBind)
+	t.Run("Tracks", testTracksBind)
 	t.Run("Users", testUsersBind)
+	t.Run("VinylRecords", testVinylRecordsBind)
+	t.Run("VinylSides", testVinylSidesBind)
 }
 
 func TestOne(t *testing.T) {
@@ -88,7 +109,10 @@ func TestOne(t *testing.T) {
 	t.Run("PasswordResetTokens", testPasswordResetTokensOne)
 	t.Run("PushTokens", testPushTokensOne)
 	t.Run("RefreshTokens", testRefreshTokensOne)
+	t.Run("Tracks", testTracksOne)
 	t.Run("Users", testUsersOne)
+	t.Run("VinylRecords", testVinylRecordsOne)
+	t.Run("VinylSides", testVinylSidesOne)
 }
 
 func TestAll(t *testing.T) {
@@ -98,7 +122,10 @@ func TestAll(t *testing.T) {
 	t.Run("PasswordResetTokens", testPasswordResetTokensAll)
 	t.Run("PushTokens", testPushTokensAll)
 	t.Run("RefreshTokens", testRefreshTokensAll)
+	t.Run("Tracks", testTracksAll)
 	t.Run("Users", testUsersAll)
+	t.Run("VinylRecords", testVinylRecordsAll)
+	t.Run("VinylSides", testVinylSidesAll)
 }
 
 func TestCount(t *testing.T) {
@@ -108,7 +135,10 @@ func TestCount(t *testing.T) {
 	t.Run("PasswordResetTokens", testPasswordResetTokensCount)
 	t.Run("PushTokens", testPushTokensCount)
 	t.Run("RefreshTokens", testRefreshTokensCount)
+	t.Run("Tracks", testTracksCount)
 	t.Run("Users", testUsersCount)
+	t.Run("VinylRecords", testVinylRecordsCount)
+	t.Run("VinylSides", testVinylSidesCount)
 }
 
 func TestInsert(t *testing.T) {
@@ -124,8 +154,14 @@ func TestInsert(t *testing.T) {
 	t.Run("PushTokens", testPushTokensInsertWhitelist)
 	t.Run("RefreshTokens", testRefreshTokensInsert)
 	t.Run("RefreshTokens", testRefreshTokensInsertWhitelist)
+	t.Run("Tracks", testTracksInsert)
+	t.Run("Tracks", testTracksInsertWhitelist)
 	t.Run("Users", testUsersInsert)
 	t.Run("Users", testUsersInsertWhitelist)
+	t.Run("VinylRecords", testVinylRecordsInsert)
+	t.Run("VinylRecords", testVinylRecordsInsertWhitelist)
+	t.Run("VinylSides", testVinylSidesInsert)
+	t.Run("VinylSides", testVinylSidesInsertWhitelist)
 }
 
 func TestReload(t *testing.T) {
@@ -135,7 +171,10 @@ func TestReload(t *testing.T) {
 	t.Run("PasswordResetTokens", testPasswordResetTokensReload)
 	t.Run("PushTokens", testPushTokensReload)
 	t.Run("RefreshTokens", testRefreshTokensReload)
+	t.Run("Tracks", testTracksReload)
 	t.Run("Users", testUsersReload)
+	t.Run("VinylRecords", testVinylRecordsReload)
+	t.Run("VinylSides", testVinylSidesReload)
 }
 
 func TestReloadAll(t *testing.T) {
@@ -145,7 +184,10 @@ func TestReloadAll(t *testing.T) {
 	t.Run("PasswordResetTokens", testPasswordResetTokensReloadAll)
 	t.Run("PushTokens", testPushTokensReloadAll)
 	t.Run("RefreshTokens", testRefreshTokensReloadAll)
+	t.Run("Tracks", testTracksReloadAll)
 	t.Run("Users", testUsersReloadAll)
+	t.Run("VinylRecords", testVinylRecordsReloadAll)
+	t.Run("VinylSides", testVinylSidesReloadAll)
 }
 
 func TestSelect(t *testing.T) {
@@ -155,7 +197,10 @@ func TestSelect(t *testing.T) {
 	t.Run("PasswordResetTokens", testPasswordResetTokensSelect)
 	t.Run("PushTokens", testPushTokensSelect)
 	t.Run("RefreshTokens", testRefreshTokensSelect)
+	t.Run("Tracks", testTracksSelect)
 	t.Run("Users", testUsersSelect)
+	t.Run("VinylRecords", testVinylRecordsSelect)
+	t.Run("VinylSides", testVinylSidesSelect)
 }
 
 func TestUpdate(t *testing.T) {
@@ -165,7 +210,10 @@ func TestUpdate(t *testing.T) {
 	t.Run("PasswordResetTokens", testPasswordResetTokensUpdate)
 	t.Run("PushTokens", testPushTokensUpdate)
 	t.Run("RefreshTokens", testRefreshTokensUpdate)
+	t.Run("Tracks", testTracksUpdate)
 	t.Run("Users", testUsersUpdate)
+	t.Run("VinylRecords", testVinylRecordsUpdate)
+	t.Run("VinylSides", testVinylSidesUpdate)
 }
 
 func TestSliceUpdateAll(t *testing.T) {
@@ -175,5 +223,8 @@ func TestSliceUpdateAll(t *testing.T) {
 	t.Run("PasswordResetTokens", testPasswordResetTokensSliceUpdateAll)
 	t.Run("PushTokens", testPushTokensSliceUpdateAll)
 	t.Run("RefreshTokens", testRefreshTokensSliceUpdateAll)
+	t.Run("Tracks", testTracksSliceUpdateAll)
 	t.Run("Users", testUsersSliceUpdateAll)
+	t.Run("VinylRecords", testVinylRecordsSliceUpdateAll)
+	t.Run("VinylSides", testVinylSidesSliceUpdateAll)
 }

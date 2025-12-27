@@ -48,7 +48,9 @@ func InitNewServer(server config.Server) (*Server, error) {
 	if err != nil {
 		return nil, err
 	}
-	apiServer := newServerWithComponents(server, db, mailer, service, i18nService, clock, authService, localService, metricsService)
+	client := NewDiscogsClient(server)
+	vinylService := NewVinylService(db, client)
+	apiServer := newServerWithComponents(server, db, mailer, service, i18nService, clock, authService, localService, metricsService, vinylService)
 	return apiServer, nil
 }
 
@@ -74,7 +76,9 @@ func InitNewServerWithDB(server config.Server, db *sql.DB, t ...*testing.T) (*Se
 	if err != nil {
 		return nil, err
 	}
-	apiServer := newServerWithComponents(server, db, mailer, service, i18nService, clock, authService, localService, metricsService)
+	client := NewDiscogsClient(server)
+	vinylService := NewVinylService(db, client)
+	apiServer := newServerWithComponents(server, db, mailer, service, i18nService, clock, authService, localService, metricsService, vinylService)
 	return apiServer, nil
 }
 
@@ -87,6 +91,8 @@ var serviceSet = wire.NewSet(
 	NewMailer,
 	NewI18N,
 	authServiceSet, local.NewService, metrics.New, NewClock,
+	NewDiscogsClient,
+	NewVinylService,
 )
 
 var authServiceSet = wire.NewSet(

@@ -41,17 +41,22 @@ func (o *SwaggerSpec) initHandlerCache() {
 	o.Handlers["GET"]["/.well-known/apple-app-site-association"] = true
 	o.Handlers["GET"]["/api/v1/auth/register"] = true
 	o.Handlers["GET"]["/-/healthy"] = true
+	o.Handlers["GET"]["/api/v1/vinyls/mistreated"] = true
 	o.Handlers["GET"]["/-/ready"] = true
 	o.Handlers["GET"]["/swagger.yml"] = true
 	o.Handlers["GET"]["/api/v1/auth/userinfo"] = true
 	o.Handlers["GET"]["/-/version"] = true
+	o.Handlers["GET"]["/api/v1/vinyls/search"] = true
+	o.Handlers["GET"]["/api/v1/vinyls"] = true
 	o.Handlers["POST"]["/api/v1/auth/change-password"] = true
 	o.Handlers["POST"]["/api/v1/auth/register/{registrationToken}"] = true
 	o.Handlers["POST"]["/api/v1/auth/forgot-password/complete"] = true
 	o.Handlers["POST"]["/api/v1/auth/forgot-password"] = true
 	o.Handlers["POST"]["/api/v1/auth/login"] = true
 	o.Handlers["POST"]["/api/v1/auth/logout"] = true
+	o.Handlers["POST"]["/api/v1/vinyls/play"] = true
 	o.Handlers["POST"]["/api/v1/auth/refresh"] = true
 	o.Handlers["POST"]["/api/v1/auth/register"] = true
+	o.Handlers["POST"]["/api/v1/vinyls"] = true
 	o.Handlers["PUT"]["/api/v1/push/token"] = true
 }

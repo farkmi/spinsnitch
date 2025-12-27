@@ -403,6 +403,117 @@ paths:
           description: PublicHTTPError, type `PUSH_TOKEN_ALREADY_EXISTS`
           schema:
             $ref: '#/definitions/publicHttpError'
+  /api/v1/vinyls:
+    get:
+      security:
+      - Bearer: []
+      tags:
+      - vinyl
+      summary: List all vinyl records
+      operationId: GetVinylsRoute
+      responses:
+        "200":
+          description: List of Vinyl Records
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/vinylRecord'
+    post:
+      security:
+      - Bearer: []
+      tags:
+      - vinyl
+      summary: Add a new vinyl record
+      operationId: PostVinylRoute
+      parameters:
+      - name: Payload
+        in: body
+        schema:
+          $ref: '#/definitions/vinylPayload'
+      responses:
+        "200":
+          description: Created Vinyl Record
+          schema:
+            type: object
+            required:
+            - id
+            - title
+            - artist
+            - discogsId
+            properties:
+              artist:
+                type: string
+              createdAt:
+                type: string
+                format: date-time
+              discogsId:
+                type: integer
+              id:
+                type: integer
+              title:
+                type: string
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+  /api/v1/vinyls/mistreated:
+    get:
+      security:
+      - Bearer: []
+      tags:
+      - vinyl
+      summary: Get mistreated records
+      operationId: GetMistreatedRoute
+      responses:
+        "200":
+          description: List of Mistreated Records
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/mistreatedRecord'
+  /api/v1/vinyls/play:
+    post:
+      security:
+      - Bearer: []
+      tags:
+      - vinyl
+      summary: Register a play
+      operationId: PostPlayRoute
+      parameters:
+      - name: Payload
+        in: body
+        schema:
+          $ref: '#/definitions/playPayload'
+      responses:
+        "204":
+          description: Play registered successfully
+        "404":
+          description: Track not found
+        "500":
+          description: Internal Server Error
+  /api/v1/vinyls/search:
+    get:
+      security:
+      - Bearer: []
+      tags:
+      - vinyl
+      summary: Search for vinyl records on Discogs
+      operationId: GetVinylSearchRoute
+      parameters:
+      - type: string
+        description: Search query (artist, title, barcode)
+        name: q
+        in: query
+        required: true
+      responses:
+        "200":
+          description: Search Results
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/vinylSearchResult'
+        "500":
+          description: Internal Server Error
   /swagger.yml:
     get:
       description: |-
@@ -472,11 +583,36 @@ definitions:
       key:
         description: Key of field failing validation
         type: string
+  mistreatedRecord:
+    type: object
+    properties:
+      artist:
+        type: string
+      lastPlayed:
+        type: string
+        format: date-time
+      neglectScore:
+        type: number
+        format: float
+      sideLabel:
+        type: string
+      title:
+        type: string
   orderDir:
     type: string
     enum:
     - asc
     - desc
+  playPayload:
+    type: object
+    required:
+    - title
+    - artist
+    properties:
+      artist:
+        type: string
+      title:
+        type: string
   postChangePasswordPayload:
     type: object
     required:
@@ -698,6 +834,45 @@ definitions:
     enum:
     - app
     - cms
+  vinylPayload:
+    type: object
+    required:
+    - discogsId
+    properties:
+      discogsId:
+        type: integer
+  vinylRecord:
+    type: object
+    required:
+    - id
+    - title
+    - artist
+    - discogsId
+    properties:
+      artist:
+        type: string
+      createdAt:
+        type: string
+        format: date-time
+      discogsId:
+        type: integer
+      id:
+        type: integer
+      title:
+        type: string
+  vinylSearchResult:
+    type: object
+    required:
+    - discogsId
+    - title
+    - artist
+    properties:
+      artist:
+        type: string
+      discogsId:
+        type: integer
+      title:
+        type: string
 parameters:
   registrationTokenParam:
     type: string

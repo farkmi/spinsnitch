@@ -236,7 +236,8 @@ func Init(s *api.Server) error {
 		WellKnown: s.Echo.Group("/.well-known"),
 
 		// Your other endpoints, typically secured by bearer auth, available at /api/v1/**
-		APIV1Push: s.Echo.Group("/api/v1/push", middleware.Auth(s)),
+		APIV1Push:  s.Echo.Group("/api/v1/push", middleware.Auth(s)),
+		APIV1Vinyl: s.Echo.Group("/api/v1/vinyls", middleware.Auth(s)),
 	}
 
 	// ---

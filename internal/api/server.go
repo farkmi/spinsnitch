@@ -16,6 +16,7 @@ import (
 	"github.com/farkmi/spinsnitch-server/internal/metrics"
 	"github.com/farkmi/spinsnitch-server/internal/push"
 	"github.com/farkmi/spinsnitch-server/internal/util"
+	"github.com/farkmi/spinsnitch-server/internal/vinyl"
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
 
@@ -29,6 +30,7 @@ type Router struct {
 	Management *echo.Group
 	APIV1Auth  *echo.Group
 	APIV1Push  *echo.Group
+	APIV1Vinyl *echo.Group
 	WellKnown  *echo.Group
 }
 
@@ -56,6 +58,7 @@ type Server struct {
 	Auth    AuthService
 	Local   *local.Service
 	Metrics *metrics.Service
+	Vinyl   *vinyl.Service
 }
 
 // newServerWithComponents is used by wire to initialize the server components.
@@ -71,6 +74,7 @@ func newServerWithComponents(
 	auth AuthService,
 	local *local.Service,
 	metrics *metrics.Service,
+	vinyl *vinyl.Service,
 ) *Server {
 	return &Server{
 		Config:  cfg,
@@ -82,6 +86,7 @@ func newServerWithComponents(
 		Auth:    auth,
 		Local:   local,
 		Metrics: metrics,
+		Vinyl:   vinyl,
 	}
 }
 

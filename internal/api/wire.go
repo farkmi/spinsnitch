@@ -25,6 +25,8 @@ var serviceSet = wire.NewSet(
 	local.NewService,
 	metrics.New,
 	NewClock,
+	NewDiscogsClient,
+	NewVinylService,
 )
 
 var authServiceSet = wire.NewSet(

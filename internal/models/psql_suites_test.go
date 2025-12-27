@@ -18,5 +18,11 @@ func TestUpsert(t *testing.T) {
 
 	t.Run("RefreshTokens", testRefreshTokensUpsert)
 
+	t.Run("Tracks", testTracksUpsert)
+
 	t.Run("Users", testUsersUpsert)
+
+	t.Run("VinylRecords", testVinylRecordsUpsert)
+
+	t.Run("VinylSides", testVinylSidesUpsert)
 }

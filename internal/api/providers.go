@@ -9,11 +9,13 @@ import (
 	"github.com/dropbox/godropbox/time2"
 	"github.com/farkmi/spinsnitch-server/internal/auth"
 	"github.com/farkmi/spinsnitch-server/internal/config"
+	"github.com/farkmi/spinsnitch-server/internal/discogs"
 	"github.com/farkmi/spinsnitch-server/internal/i18n"
 	"github.com/farkmi/spinsnitch-server/internal/mailer"
 	"github.com/farkmi/spinsnitch-server/internal/persistence"
 	"github.com/farkmi/spinsnitch-server/internal/push"
 	"github.com/farkmi/spinsnitch-server/internal/push/provider"
+	"github.com/farkmi/spinsnitch-server/internal/vinyl"
 	"github.com/rs/zerolog/log"
 )
 
@@ -74,6 +76,14 @@ func NewDB(config config.Server) (*sql.DB, error) {
 
 func NewI18N(config config.Server) (*i18n.Service, error) {
 	return i18n.New(config.I18n)
+}
+
+func NewDiscogsClient(config config.Server) *discogs.Client {
+	return discogs.NewClient(config.Discogs.Token)
+}
+
+func NewVinylService(db *sql.DB, discogsClient *discogs.Client) *vinyl.Service {
+	return vinyl.NewService(db, discogsClient)
 }
 
 func NoTest() []*testing.T {

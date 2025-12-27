@@ -186,6 +186,7 @@ sql-format: ##- (opt) Formats all *.sql files.
 	@find ${PWD} -path "*/tmp/*" -prune -name ".*" -prune -o -type f -iname "*.sql" -print \
 		| grep --invert "/app/dumps/" \
 		| grep --invert "/app/test/" \
+		| grep --invert "/.gemini/" \
 		| xargs -i pg_format --inplace {}
 
 sql-check-files: sql-check-syntax sql-check-migrations-unnecessary-null ##- (opt) Check syntax and unnecessary use of NULL keyword.
@@ -197,6 +198,7 @@ sql-check-syntax: ##- (opt) Checks syntax of all *.sql files.
 	@find ${PWD} -path "*/tmp/*" -prune -name ".*" -prune -path ./dumps -prune -false -o -type f -iname "*.sql" -print \
 		| grep --invert "/app/dumps/" \
 		| grep --invert "/app/test/" \
+		| grep --invert "/.gemini/" \
 		| xargs -i sed '1s#^#DO $$SYNTAX_CHECK$$ BEGIN RETURN;#; $$aEND; $$SYNTAX_CHECK$$;' {} \
 		| psql -d postgres --quiet -v ON_ERROR_STOP=1
 
