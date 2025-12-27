@@ -119,7 +119,8 @@ type Server struct {
 }
 
 type Discogs struct {
-	Token string
+	Key    string
+	Secret string
 }
 
 // DefaultServiceConfigFromEnv returns the server config as parsed from environment variables
@@ -260,7 +261,8 @@ func DefaultServiceConfigFromEnv() Server {
 			BundleDirAbs:    util.GetEnv("SERVER_I18N_BUNDLE_DIR_ABS", filepath.Join(util.GetProjectRootDir(), "/web/i18n")), // /app/web/i18n
 		},
 		Discogs: Discogs{
-			Token: util.GetEnv("SERVER_DISCOGS_TOKEN", ""),
+			Key:    util.GetEnv("SERVER_DISCOGS_KEY", ""),
+			Secret: util.GetEnv("SERVER_DISCOGS_SECRET", ""),
 		},
 	}
 }

@@ -10,6 +10,7 @@ var TableNames = struct {
 	PasswordResetTokens string
 	PushTokens          string
 	RefreshTokens       string
+	TrackPlays          string
 	Tracks              string
 	Users               string
 	VinylRecords        string
@@ -21,6 +22,7 @@ var TableNames = struct {
 	PasswordResetTokens: "password_reset_tokens",
 	PushTokens:          "push_tokens",
 	RefreshTokens:       "refresh_tokens",
+	TrackPlays:          "track_plays",
 	Tracks:              "tracks",
 	Users:               "users",
 	VinylRecords:        "vinyl_records",

@@ -16,16 +16,18 @@ const (
 
 type Client struct {
 	httpClient *http.Client
-	token      string
+	key        string
+	secret     string
 	BaseURL    string
 }
 
-func NewClient(token string) *Client {
+func NewClient(key string, secret string) *Client {
 	return &Client{
 		httpClient: &http.Client{
 			Timeout: defaultTimeout,
 		},
-		token:   token,
+		key:     key,
+		secret:  secret,
 		BaseURL: baseURL,
 	}
 }
@@ -81,8 +83,8 @@ func (c *Client) Search(ctx context.Context, query string) ([]SearchResult, erro
 	req.URL.RawQuery = q.Encode()
 
 	req.Header.Set("User-Agent", userAgent)
-	if c.token != "" {
-		req.Header.Set("Authorization", fmt.Sprintf("Discogs token=%s", c.token))
+	if c.key != "" && c.secret != "" {
+		req.Header.Set("Authorization", fmt.Sprintf("Discogs key=%s, secret=%s", c.key, c.secret))
 	}
 
 	resp, err := c.httpClient.Do(req)
@@ -111,8 +113,8 @@ func (c *Client) GetRelease(ctx context.Context, id int) (*Release, error) {
 	}
 
 	req.Header.Set("User-Agent", userAgent)
-	if c.token != "" {
-		req.Header.Set("Authorization", fmt.Sprintf("Discogs token=%s", c.token))
+	if c.key != "" && c.secret != "" {
+		req.Header.Set("Authorization", fmt.Sprintf("Discogs key=%s, secret=%s", c.key, c.secret))
 	}
 
 	resp, err := c.httpClient.Do(req)

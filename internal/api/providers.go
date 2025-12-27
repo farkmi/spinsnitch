@@ -79,11 +79,11 @@ func NewI18N(config config.Server) (*i18n.Service, error) {
 }
 
 func NewDiscogsClient(config config.Server) *discogs.Client {
-	return discogs.NewClient(config.Discogs.Token)
+	return discogs.NewClient(config.Discogs.Key, config.Discogs.Secret)
 }
 
-func NewVinylService(db *sql.DB, discogsClient *discogs.Client) *vinyl.Service {
-	return vinyl.NewService(db, discogsClient)
+func NewVinylService(db *sql.DB, discogsClient *discogs.Client, clock time2.Clock) *vinyl.Service {
+	return vinyl.NewService(db, discogsClient, clock)
 }
 
 func NoTest() []*testing.T {

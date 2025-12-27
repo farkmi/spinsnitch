@@ -117,3 +117,33 @@ func (s MistreatedRecordSlice) ToTypes() []*types.MistreatedRecord {
 	}
 	return result
 }
+
+type TrackPlay struct {
+	ID       int
+	Title    string
+	Artist   string
+	PlayedAt time.Time
+}
+
+func (p *TrackPlay) ToTypes() *types.TrackPlay {
+	return &types.TrackPlay{
+		ID:       int64(p.ID),
+		Title:    p.Title,
+		Artist:   p.Artist,
+		PlayedAt: strfmt.DateTime(p.PlayedAt),
+	}
+}
+
+type RecentPlaysResponse struct {
+	Plays []TrackPlay
+}
+
+func (r *RecentPlaysResponse) ToTypes() *types.RecentPlaysResponse {
+	plays := make([]*types.TrackPlay, len(r.Plays))
+	for i, p := range r.Plays {
+		plays[i] = p.ToTypes()
+	}
+	return &types.RecentPlaysResponse{
+		Plays: plays,
+	}
+}

@@ -31,6 +31,7 @@ func AttachAllRoutes(s *api.Server) {
 		common.GetVersionRoute(s),
 		push.PutUpdatePushTokenRoute(s),
 		vinyl.GetMistreatedRoute(s),
+		vinyl.GetRecentPlaysRoute(s),
 		vinyl.GetVinylSearchRoute(s),
 		vinyl.GetVinylsRoute(s),
 		vinyl.PostPlayRoute(s),

@@ -145,6 +145,7 @@ var UserRels = struct {
 	PasswordResetTokens string
 	PushTokens          string
 	RefreshTokens       string
+	TrackPlays          string
 }{
 	AppUserProfile:      "AppUserProfile",
 	AccessTokens:        "AccessTokens",
@@ -152,6 +153,7 @@ var UserRels = struct {
 	PasswordResetTokens: "PasswordResetTokens",
 	PushTokens:          "PushTokens",
 	RefreshTokens:       "RefreshTokens",
+	TrackPlays:          "TrackPlays",
 }
 
 // userR is where relationships are stored.
@@ -162,6 +164,7 @@ type userR struct {
 	PasswordResetTokens PasswordResetTokenSlice `boil:"PasswordResetTokens" json:"PasswordResetTokens" toml:"PasswordResetTokens" yaml:"PasswordResetTokens"`
 	PushTokens          PushTokenSlice          `boil:"PushTokens" json:"PushTokens" toml:"PushTokens" yaml:"PushTokens"`
 	RefreshTokens       RefreshTokenSlice       `boil:"RefreshTokens" json:"RefreshTokens" toml:"RefreshTokens" yaml:"RefreshTokens"`
+	TrackPlays          TrackPlaySlice          `boil:"TrackPlays" json:"TrackPlays" toml:"TrackPlays" yaml:"TrackPlays"`
 }
 
 // NewStruct creates a new relationship struct
@@ -263,6 +266,22 @@ func (r *userR) GetRefreshTokens() RefreshTokenSlice {
 	}
 
 	return r.RefreshTokens
+}
+
+func (o *User) GetTrackPlays() TrackPlaySlice {
+	if o == nil {
+		return nil
+	}
+
+	return o.R.GetTrackPlays()
+}
+
+func (r *userR) GetTrackPlays() TrackPlaySlice {
+	if r == nil {
+		return nil
+	}
+
+	return r.TrackPlays
 }
 
 // userL is where Load methods for each relationship are stored.
@@ -446,6 +465,20 @@ func (o *User) RefreshTokens(mods ...qm.QueryMod) refreshTokenQuery {
 	)
 
 	return RefreshTokens(queryMods...)
+}
+
+// TrackPlays retrieves all the track_play's TrackPlays with an executor.
+func (o *User) TrackPlays(mods ...qm.QueryMod) trackPlayQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("\"track_plays\".\"user_id\"=?", o.ID),
+	)
+
+	return TrackPlays(queryMods...)
 }
 
 // LoadAppUserProfile allows an eager lookup of values, cached into the
@@ -1087,6 +1120,112 @@ func (userL) LoadRefreshTokens(ctx context.Context, e boil.ContextExecutor, sing
 	return nil
 }
 
+// LoadTrackPlays allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (userL) LoadTrackPlays(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
+	var slice []*User
+	var object *User
+
+	if singular {
+		var ok bool
+		object, ok = maybeUser.(*User)
+		if !ok {
+			object = new(User)
+			ok = queries.SetFromEmbeddedStruct(&object, &maybeUser)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", object, maybeUser))
+			}
+		}
+	} else {
+		s, ok := maybeUser.(*[]*User)
+		if ok {
+			slice = *s
+		} else {
+			ok = queries.SetFromEmbeddedStruct(&slice, maybeUser)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", slice, maybeUser))
+			}
+		}
+	}
+
+	args := make(map[interface{}]struct{})
+	if singular {
+		if object.R == nil {
+			object.R = &userR{}
+		}
+		args[object.ID] = struct{}{}
+	} else {
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &userR{}
+			}
+			args[obj.ID] = struct{}{}
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	argsSlice := make([]interface{}, len(args))
+	i := 0
+	for arg := range args {
+		argsSlice[i] = arg
+		i++
+	}
+
+	query := NewQuery(
+		qm.From(`track_plays`),
+		qm.WhereIn(`track_plays.user_id in ?`, argsSlice...),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load track_plays")
+	}
+
+	var resultSlice []*TrackPlay
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice track_plays")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on track_plays")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for track_plays")
+	}
+
+	if singular {
+		object.R.TrackPlays = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &trackPlayR{}
+			}
+			foreign.R.User = object
+		}
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if local.ID == foreign.UserID {
+				local.R.TrackPlays = append(local.R.TrackPlays, foreign)
+				if foreign.R == nil {
+					foreign.R = &trackPlayR{}
+				}
+				foreign.R.User = local
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
 // SetAppUserProfile of the user to the related item.
 // Sets o.R.AppUserProfile to related.
 // Adds o to related.R.User.
@@ -1393,6 +1532,59 @@ func (o *User) AddRefreshTokens(ctx context.Context, exec boil.ContextExecutor, 
 	for _, rel := range related {
 		if rel.R == nil {
 			rel.R = &refreshTokenR{
+				User: o,
+			}
+		} else {
+			rel.R.User = o
+		}
+	}
+	return nil
+}
+
+// AddTrackPlays adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.TrackPlays.
+// Sets related.R.User appropriately.
+func (o *User) AddTrackPlays(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*TrackPlay) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			rel.UserID = o.ID
+			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE \"track_plays\" SET %s WHERE %s",
+				strmangle.SetParamNames("\"", "\"", 1, []string{"user_id"}),
+				strmangle.WhereClause("\"", "\"", 2, trackPlayPrimaryKeyColumns),
+			)
+			values := []interface{}{o.ID, rel.ID}
+
+			if boil.IsDebug(ctx) {
+				writer := boil.DebugWriterFrom(ctx)
+				fmt.Fprintln(writer, updateQuery)
+				fmt.Fprintln(writer, values)
+			}
+			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			rel.UserID = o.ID
+		}
+	}
+
+	if o.R == nil {
+		o.R = &userR{
+			TrackPlays: related,
+		}
+	} else {
+		o.R.TrackPlays = append(o.R.TrackPlays, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &trackPlayR{
 				User: o,
 			}
 		} else {

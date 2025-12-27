@@ -49,7 +49,7 @@ func InitNewServer(server config.Server) (*Server, error) {
 		return nil, err
 	}
 	client := NewDiscogsClient(server)
-	vinylService := NewVinylService(db, client)
+	vinylService := NewVinylService(db, client, clock)
 	apiServer := newServerWithComponents(server, db, mailer, service, i18nService, clock, authService, localService, metricsService, vinylService)
 	return apiServer, nil
 }
@@ -77,7 +77,7 @@ func InitNewServerWithDB(server config.Server, db *sql.DB, t ...*testing.T) (*Se
 		return nil, err
 	}
 	client := NewDiscogsClient(server)
-	vinylService := NewVinylService(db, client)
+	vinylService := NewVinylService(db, client, clock)
 	apiServer := newServerWithComponents(server, db, mailer, service, i18nService, clock, authService, localService, metricsService, vinylService)
 	return apiServer, nil
 }

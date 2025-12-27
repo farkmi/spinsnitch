@@ -95,3 +95,24 @@ definitions:
         type: array
         items:
           type: string
+
+  TrackPlay:
+    type: object
+    properties:
+      id:
+        type: integer
+      title:
+        type: string
+      artist:
+        type: string
+      playedAt:
+        type: string
+        format: date-time
+
+  RecentPlaysResponse:
+    type: object
+    properties:
+      plays:
+        type: array
+        items:
+          $ref: "#/definitions/TrackPlay"

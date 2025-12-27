@@ -505,6 +505,25 @@ paths:
           description: Track not found
         "500":
           description: Internal Server Error
+  /api/v1/vinyls/recent-plays:
+    get:
+      security:
+      - Bearer: []
+      tags:
+      - vinyl
+      summary: Get recent track plays
+      operationId: GetRecentPlaysRoute
+      parameters:
+      - type: integer
+        default: 10
+        description: Max number of plays to return
+        name: limit
+        in: query
+      responses:
+        "200":
+          description: List of Recent Plays
+          schema:
+            $ref: '#/definitions/recentPlaysResponse'
   /api/v1/vinyls/search:
     get:
       security:
@@ -834,6 +853,13 @@ definitions:
         type: string
         maxLength: 500
         example: fcm
+  recentPlaysResponse:
+    type: object
+    properties:
+      plays:
+        type: array
+        items:
+          $ref: '#/definitions/trackPlay'
   registerResponse:
     type: object
     required:
@@ -843,6 +869,18 @@ definitions:
         description: Indicates whether the registration process requires email confirmation
         type: boolean
         example: true
+  trackPlay:
+    type: object
+    properties:
+      artist:
+        type: string
+      id:
+        type: integer
+      playedAt:
+        type: string
+        format: date-time
+      title:
+        type: string
   userScope:
     type: string
     enum:

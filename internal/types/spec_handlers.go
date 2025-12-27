@@ -43,6 +43,7 @@ func (o *SwaggerSpec) initHandlerCache() {
 	o.Handlers["GET"]["/-/healthy"] = true
 	o.Handlers["GET"]["/api/v1/vinyls/mistreated"] = true
 	o.Handlers["GET"]["/-/ready"] = true
+	o.Handlers["GET"]["/api/v1/vinyls/recent-plays"] = true
 	o.Handlers["GET"]["/swagger.yml"] = true
 	o.Handlers["GET"]["/api/v1/auth/userinfo"] = true
 	o.Handlers["GET"]["/-/version"] = true

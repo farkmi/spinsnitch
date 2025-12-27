@@ -38,9 +38,10 @@ func TestGetSearch(t *testing.T) {
 	defer discogsServer.Close()
 
 	test.WithTestServer(t, func(s *api.Server) {
-		mockClient := discogs.NewClient("test")
+		mockClient := discogs.NewClient("test", "test")
 		mockClient.BaseURL = discogsServer.URL
-		s.Vinyl = vinyl_service.NewService(s.DB, mockClient)
+		vs := vinyl_service.NewService(s.DB, mockClient, s.Clock)
+		s.Vinyl = vs
 
 		fix := fixtures.Fixtures()
 		authHeaders := test.HeadersWithAuth(t, fix.User1AccessToken1.Token)

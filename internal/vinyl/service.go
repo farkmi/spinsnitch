@@ -13,11 +13,15 @@ import (
 	"github.com/aarondl/null/v8"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
-	"github.com/aarondl/sqlboiler/v4/types"
+	boilTypes "github.com/aarondl/sqlboiler/v4/types"
+	"github.com/dropbox/godropbox/time2"
 	"github.com/farkmi/spinsnitch-server/internal/data/dto"
 	"github.com/farkmi/spinsnitch-server/internal/discogs"
 	"github.com/farkmi/spinsnitch-server/internal/models"
+	"github.com/farkmi/spinsnitch-server/internal/types"
+	"github.com/farkmi/spinsnitch-server/internal/util/db"
 	"github.com/friendsofgo/errors"
+	"github.com/rs/zerolog/log"
 )
 
 var (
@@ -34,12 +38,14 @@ const (
 type Service struct {
 	db            *sql.DB
 	discogsClient *discogs.Client
+	clock         time2.Clock
 }
 
-func NewService(db *sql.DB, discogsClient *discogs.Client) *Service {
+func NewService(db *sql.DB, discogsClient *discogs.Client, clock time2.Clock) *Service {
 	return &Service{
 		db:            db,
 		discogsClient: discogsClient,
+		clock:         clock,
 	}
 }
 
@@ -112,8 +118,8 @@ func (s *Service) AddVinyl(ctx context.Context, discogsID int) (*dto.VinylRecord
 		Artist:    artistName,
 		DiscogsID: discogsID,
 		Year:      null.IntFrom(release.Year),
-		Genres:    types.StringArray(release.Genres),
-		Styles:    types.StringArray(release.Styles),
+		Genres:    boilTypes.StringArray(release.Genres),
+		Styles:    boilTypes.StringArray(release.Styles),
 	}
 	if coverPath != "" {
 		record.CoverImage = null.StringFrom(coverPath)
@@ -167,12 +173,13 @@ func (s *Service) AddVinyl(ctx context.Context, discogsID int) (*dto.VinylRecord
 	return dto.VinylRecordFromModel(record), nil
 }
 
-func (s *Service) RegisterPlay(ctx context.Context, artist, title string) error {
+func (s *Service) RegisterPlay(ctx context.Context, userID string, artist, title string) error {
 	// 1. Find the track in our DB
 	track, err := models.Tracks(
-		qm.InnerJoin("vinyl_sides s on s.id = tracks.vinyl_side_id"),
-		qm.InnerJoin("vinyl_records r on r.id = s.vinyl_record_id"),
-		qm.Where("LOWER(tracks.title) = ? AND LOWER(r.artist) = ?", strings.ToLower(title), strings.ToLower(artist)),
+		db.InnerJoin(models.TableNames.Tracks, models.TrackColumns.VinylSideID, models.TableNames.VinylSides, models.VinylSideColumns.ID),
+		db.InnerJoin(models.TableNames.VinylSides, models.VinylSideColumns.VinylRecordID, models.TableNames.VinylRecords, models.VinylRecordColumns.ID),
+		db.ILike(title, models.TableNames.Tracks, models.TrackColumns.Title),
+		db.ILike(artist, models.TableNames.VinylRecords, models.VinylRecordColumns.Artist),
 		qm.Load(models.TrackRels.VinylSide),
 	).One(ctx, s.db)
 
@@ -183,16 +190,74 @@ func (s *Service) RegisterPlay(ctx context.Context, artist, title string) error 
 		return errors.Wrap(err, "failed to find track")
 	}
 
-	// 2. Update Play Count on the Side
-	side := track.R.VinylSide
-	side.PlayCount++
-	side.LastPlayedAt = null.TimeFrom(time.Now())
+	// 2. Debouncing check (30 minutes)
+	lastPlay, err := models.TrackPlays(
+		models.TrackPlayWhere.UserID.EQ(userID),
+		models.TrackPlayWhere.TrackID.EQ(track.ID),
+		db.OrderBy(types.OrderDirDesc, models.TableNames.TrackPlays, models.TrackPlayColumns.PlayedAt),
+		qm.Limit(1),
+	).One(ctx, s.db)
 
-	if _, err := side.Update(ctx, s.db, boil.Infer()); err != nil {
-		return errors.Wrap(err, "failed to update side play stats")
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return errors.Wrap(err, "failed to check for recent play")
 	}
 
-	return nil
+	if lastPlay != nil && lastPlay.PlayedAt.After(s.clock.Now().Add(-30*time.Minute)) {
+		log.Debug().Msg("Play ignored due to debounce")
+		return nil
+	}
+
+	return db.WithTransaction(ctx, s.db, func(tx boil.ContextExecutor) error {
+		// 3. Record Play
+		play := &models.TrackPlay{
+			TrackID:  track.ID,
+			UserID:   userID,
+			PlayedAt: s.clock.Now(),
+		}
+		if err := play.Insert(ctx, tx, boil.Infer()); err != nil {
+			return errors.Wrap(err, "failed to insert track play")
+		}
+
+		// 4. Update Play Count on the Side
+		side := track.R.VinylSide
+		side.PlayCount++
+		side.LastPlayedAt = null.TimeFrom(s.clock.Now())
+
+		if _, err := side.Update(ctx, tx, boil.Whitelist(models.VinylSideColumns.PlayCount, models.VinylSideColumns.LastPlayedAt, models.VinylSideColumns.UpdatedAt)); err != nil {
+			return errors.Wrap(err, "failed to update side play stats")
+		}
+
+		return nil
+	})
+}
+
+func (s *Service) GetRecentPlays(ctx context.Context, userID string, limit int) (dto.RecentPlaysResponse, error) {
+	plays, err := models.TrackPlays(
+		models.TrackPlayWhere.UserID.EQ(userID),
+		qm.Load(models.TrackPlayRels.Track),
+		qm.Load(qm.Rels(models.TrackPlayRels.Track, models.TrackRels.VinylSide, models.VinylSideRels.VinylRecord)),
+		db.OrderBy(types.OrderDirDesc, models.TableNames.TrackPlays, models.TrackPlayColumns.PlayedAt),
+		qm.Limit(limit),
+	).All(ctx, s.db)
+	if err != nil {
+		return dto.RecentPlaysResponse{}, err
+	}
+
+	results := make([]dto.TrackPlay, 0, len(plays))
+	for _, play := range plays {
+		artist := "Unknown"
+		if play.R.Track != nil && play.R.Track.R.VinylSide != nil && play.R.Track.R.VinylSide.R.VinylRecord != nil {
+			artist = play.R.Track.R.VinylSide.R.VinylRecord.Artist
+		}
+		results = append(results, dto.TrackPlay{
+			ID:       play.ID,
+			Title:    play.R.Track.Title,
+			Artist:   artist,
+			PlayedAt: play.PlayedAt,
+		})
+	}
+
+	return dto.RecentPlaysResponse{Plays: results}, nil
 }
 
 func (s *Service) GetMistreated(ctx context.Context) (dto.MistreatedRecordSlice, error) {

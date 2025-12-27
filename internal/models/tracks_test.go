@@ -353,6 +353,159 @@ func testTracksInsertWhitelist(t *testing.T) {
 	}
 }
 
+func testTrackToManyTrackPlays(t *testing.T) {
+	var err error
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+
+	var a Track
+	var b, c TrackPlay
+
+	seed := randomize.NewSeed()
+	if err = randomize.Struct(seed, &a, trackDBTypes, true, trackColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Track struct: %s", err)
+	}
+
+	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	if err = randomize.Struct(seed, &b, trackPlayDBTypes, false, trackPlayColumnsWithDefault...); err != nil {
+		t.Fatal(err)
+	}
+	if err = randomize.Struct(seed, &c, trackPlayDBTypes, false, trackPlayColumnsWithDefault...); err != nil {
+		t.Fatal(err)
+	}
+
+	b.TrackID = a.ID
+	c.TrackID = a.ID
+
+	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+	if err = c.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	check, err := a.TrackPlays().All(ctx, tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	bFound, cFound := false, false
+	for _, v := range check {
+		if v.TrackID == b.TrackID {
+			bFound = true
+		}
+		if v.TrackID == c.TrackID {
+			cFound = true
+		}
+	}
+
+	if !bFound {
+		t.Error("expected to find b")
+	}
+	if !cFound {
+		t.Error("expected to find c")
+	}
+
+	slice := TrackSlice{&a}
+	if err = a.L.LoadTrackPlays(ctx, tx, false, (*[]*Track)(&slice), nil); err != nil {
+		t.Fatal(err)
+	}
+	if got := len(a.R.TrackPlays); got != 2 {
+		t.Error("number of eager loaded records wrong, got:", got)
+	}
+
+	a.R.TrackPlays = nil
+	if err = a.L.LoadTrackPlays(ctx, tx, true, &a, nil); err != nil {
+		t.Fatal(err)
+	}
+	if got := len(a.R.TrackPlays); got != 2 {
+		t.Error("number of eager loaded records wrong, got:", got)
+	}
+
+	if t.Failed() {
+		t.Logf("%#v", check)
+	}
+}
+
+func testTrackToManyAddOpTrackPlays(t *testing.T) {
+	var err error
+
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+
+	var a Track
+	var b, c, d, e TrackPlay
+
+	seed := randomize.NewSeed()
+	if err = randomize.Struct(seed, &a, trackDBTypes, false, strmangle.SetComplement(trackPrimaryKeyColumns, trackColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+	foreigners := []*TrackPlay{&b, &c, &d, &e}
+	for _, x := range foreigners {
+		if err = randomize.Struct(seed, x, trackPlayDBTypes, false, strmangle.SetComplement(trackPlayPrimaryKeyColumns, trackPlayColumnsWithoutDefault)...); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+	if err = c.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	foreignersSplitByInsertion := [][]*TrackPlay{
+		{&b, &c},
+		{&d, &e},
+	}
+
+	for i, x := range foreignersSplitByInsertion {
+		err = a.AddTrackPlays(ctx, tx, i != 0, x...)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		first := x[0]
+		second := x[1]
+
+		if a.ID != first.TrackID {
+			t.Error("foreign key was wrong value", a.ID, first.TrackID)
+		}
+		if a.ID != second.TrackID {
+			t.Error("foreign key was wrong value", a.ID, second.TrackID)
+		}
+
+		if first.R.Track != &a {
+			t.Error("relationship was not added properly to the foreign slice")
+		}
+		if second.R.Track != &a {
+			t.Error("relationship was not added properly to the foreign slice")
+		}
+
+		if a.R.TrackPlays[i*2] != first {
+			t.Error("relationship struct slice not set to correct value")
+		}
+		if a.R.TrackPlays[i*2+1] != second {
+			t.Error("relationship struct slice not set to correct value")
+		}
+
+		count, err := a.TrackPlays().Count(ctx, tx)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if want := int64((i + 1) * 2); count != want {
+			t.Error("want", want, "got", count)
+		}
+	}
+}
 func testTrackToOneVinylSideUsingVinylSide(t *testing.T) {
 	ctx := context.Background()
 	tx := MustTx(boil.BeginTx(ctx, nil))

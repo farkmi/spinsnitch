@@ -48,9 +48,9 @@ func TestPostVinyl(t *testing.T) {
 
 	test.WithTestServer(t, func(s *api.Server) {
 		// Setup mock service
-		mockClient := discogs.NewClient("test")
+		mockClient := discogs.NewClient("test-key", "test-secret")
 		mockClient.BaseURL = discogsServer.URL
-		s.Vinyl = vinyl_service.NewService(s.DB, mockClient)
+		s.Vinyl = vinyl_service.NewService(s.DB, mockClient, s.Clock)
 
 		fix := fixtures.Fixtures()
 		authHeaders := test.HeadersWithAuth(t, fix.User1AccessToken1.Token)

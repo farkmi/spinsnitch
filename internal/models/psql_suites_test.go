@@ -18,6 +18,8 @@ func TestUpsert(t *testing.T) {
 
 	t.Run("RefreshTokens", testRefreshTokensUpsert)
 
+	t.Run("TrackPlays", testTrackPlaysUpsert)
+
 	t.Run("Tracks", testTracksUpsert)
 
 	t.Run("Users", testUsersUpsert)

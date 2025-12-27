@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/farkmi/spinsnitch-server/internal/api"
+	"github.com/farkmi/spinsnitch-server/internal/auth"
 	"github.com/farkmi/spinsnitch-server/internal/types"
 	"github.com/farkmi/spinsnitch-server/internal/util"
 	"github.com/farkmi/spinsnitch-server/internal/vinyl"
@@ -24,7 +25,8 @@ func postPlayHandler(s *api.Server) echo.HandlerFunc {
 			return err
 		}
 
-		err := s.Vinyl.RegisterPlay(ctx, swag.StringValue(body.Artist), swag.StringValue(body.Title))
+		userID := auth.UserFromContext(ctx).ID
+		err := s.Vinyl.RegisterPlay(ctx, userID, swag.StringValue(body.Artist), swag.StringValue(body.Title))
 		if err != nil {
 			if errors.Is(err, vinyl.ErrTrackNotFound) {
 				return echo.NewHTTPError(http.StatusNotFound, err.Error())

@@ -14,6 +14,8 @@ func TestToOne(t *testing.T) {
 	t.Run("PasswordResetTokenToUserUsingUser", testPasswordResetTokenToOneUserUsingUser)
 	t.Run("PushTokenToUserUsingUser", testPushTokenToOneUserUsingUser)
 	t.Run("RefreshTokenToUserUsingUser", testRefreshTokenToOneUserUsingUser)
+	t.Run("TrackPlayToTrackUsingTrack", testTrackPlayToOneTrackUsingTrack)
+	t.Run("TrackPlayToUserUsingUser", testTrackPlayToOneUserUsingUser)
 	t.Run("TrackToVinylSideUsingVinylSide", testTrackToOneVinylSideUsingVinylSide)
 	t.Run("VinylSideToVinylRecordUsingVinylRecord", testVinylSideToOneVinylRecordUsingVinylRecord)
 }
@@ -27,11 +29,13 @@ func TestOneToOne(t *testing.T) {
 // TestToMany tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToMany(t *testing.T) {
+	t.Run("TrackToTrackPlays", testTrackToManyTrackPlays)
 	t.Run("UserToAccessTokens", testUserToManyAccessTokens)
 	t.Run("UserToConfirmationTokens", testUserToManyConfirmationTokens)
 	t.Run("UserToPasswordResetTokens", testUserToManyPasswordResetTokens)
 	t.Run("UserToPushTokens", testUserToManyPushTokens)
 	t.Run("UserToRefreshTokens", testUserToManyRefreshTokens)
+	t.Run("UserToTrackPlays", testUserToManyTrackPlays)
 	t.Run("VinylRecordToVinylSides", testVinylRecordToManyVinylSides)
 	t.Run("VinylSideToTracks", testVinylSideToManyTracks)
 }
@@ -45,6 +49,8 @@ func TestToOneSet(t *testing.T) {
 	t.Run("PasswordResetTokenToUserUsingPasswordResetTokens", testPasswordResetTokenToOneSetOpUserUsingUser)
 	t.Run("PushTokenToUserUsingPushTokens", testPushTokenToOneSetOpUserUsingUser)
 	t.Run("RefreshTokenToUserUsingRefreshTokens", testRefreshTokenToOneSetOpUserUsingUser)
+	t.Run("TrackPlayToTrackUsingTrackPlays", testTrackPlayToOneSetOpTrackUsingTrack)
+	t.Run("TrackPlayToUserUsingTrackPlays", testTrackPlayToOneSetOpUserUsingUser)
 	t.Run("TrackToVinylSideUsingTracks", testTrackToOneSetOpVinylSideUsingVinylSide)
 	t.Run("VinylSideToVinylRecordUsingVinylSides", testVinylSideToOneSetOpVinylRecordUsingVinylRecord)
 }
@@ -66,11 +72,13 @@ func TestOneToOneRemove(t *testing.T) {}
 // TestToManyAdd tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToManyAdd(t *testing.T) {
+	t.Run("TrackToTrackPlays", testTrackToManyAddOpTrackPlays)
 	t.Run("UserToAccessTokens", testUserToManyAddOpAccessTokens)
 	t.Run("UserToConfirmationTokens", testUserToManyAddOpConfirmationTokens)
 	t.Run("UserToPasswordResetTokens", testUserToManyAddOpPasswordResetTokens)
 	t.Run("UserToPushTokens", testUserToManyAddOpPushTokens)
 	t.Run("UserToRefreshTokens", testUserToManyAddOpRefreshTokens)
+	t.Run("UserToTrackPlays", testUserToManyAddOpTrackPlays)
 	t.Run("VinylRecordToVinylSides", testVinylRecordToManyAddOpVinylSides)
 	t.Run("VinylSideToTracks", testVinylSideToManyAddOpTracks)
 }

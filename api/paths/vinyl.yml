@@ -38,6 +38,26 @@ paths:
             items:
               $ref: ../definitions/vinyl.yml#/definitions/VinylRecord
 
+  /api/v1/vinyls/recent-plays:
+    get:
+      security:
+        - Bearer: []
+      summary: Get recent track plays
+      tags:
+        - vinyl
+      operationId: GetRecentPlaysRoute
+      parameters:
+        - name: limit
+          in: query
+          type: integer
+          default: 10
+          description: Max number of plays to return
+      responses:
+        "200":
+          description: List of Recent Plays
+          schema:
+            $ref: ../definitions/vinyl.yml#/definitions/RecentPlaysResponse
+
   /api/v1/vinyls/play:
     post:
       security:

@@ -58,9 +58,9 @@ func TestIntegrationVinyl(t *testing.T) {
 	// 2. Setup Test Server
 	test.WithTestServer(t, func(s *api.Server) {
 		// Replace service with one using mock client
-		mockClient := discogs.NewClient("test-token")
+		mockClient := discogs.NewClient("test", "test")
 		mockClient.BaseURL = discogsServer.URL
-		s.Vinyl = vinyl_service.NewService(s.DB, mockClient)
+		s.Vinyl = vinyl_service.NewService(s.DB, mockClient, s.Clock)
 
 		fix := fixtures.Fixtures()
 		authHeaders := test.HeadersWithAuth(t, fix.User1AccessToken1.Token)
