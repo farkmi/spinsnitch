@@ -13,75 +13,155 @@ import (
 	"sync"
 	"time"
 
+	"github.com/aarondl/null/v8"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/aarondl/sqlboiler/v4/queries"
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
 	"github.com/aarondl/sqlboiler/v4/queries/qmhelper"
+	"github.com/aarondl/sqlboiler/v4/types"
 	"github.com/aarondl/strmangle"
 	"github.com/friendsofgo/errors"
 )
 
 // VinylRecord is an object representing the database table.
 type VinylRecord struct {
-	ID        int       `boil:"id" json:"id" toml:"id" yaml:"id"`
-	Title     string    `boil:"title" json:"title" toml:"title" yaml:"title"`
-	Artist    string    `boil:"artist" json:"artist" toml:"artist" yaml:"artist"`
-	DiscogsID int       `boil:"discogs_id" json:"discogs_id" toml:"discogs_id" yaml:"discogs_id"`
-	CreatedAt time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
-	UpdatedAt time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	ID         int               `boil:"id" json:"id" toml:"id" yaml:"id"`
+	Title      string            `boil:"title" json:"title" toml:"title" yaml:"title"`
+	Artist     string            `boil:"artist" json:"artist" toml:"artist" yaml:"artist"`
+	DiscogsID  int               `boil:"discogs_id" json:"discogs_id" toml:"discogs_id" yaml:"discogs_id"`
+	CreatedAt  time.Time         `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	UpdatedAt  time.Time         `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	Year       null.Int          `boil:"year" json:"year,omitempty" toml:"year" yaml:"year,omitempty"`
+	CoverImage null.String       `boil:"cover_image" json:"cover_image,omitempty" toml:"cover_image" yaml:"cover_image,omitempty"`
+	ThumbImage null.String       `boil:"thumb_image" json:"thumb_image,omitempty" toml:"thumb_image" yaml:"thumb_image,omitempty"`
+	Genres     types.StringArray `boil:"genres" json:"genres,omitempty" toml:"genres" yaml:"genres,omitempty"`
+	Styles     types.StringArray `boil:"styles" json:"styles,omitempty" toml:"styles" yaml:"styles,omitempty"`
 
 	R *vinylRecordR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L vinylRecordL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var VinylRecordColumns = struct {
-	ID        string
-	Title     string
-	Artist    string
-	DiscogsID string
-	CreatedAt string
-	UpdatedAt string
+	ID         string
+	Title      string
+	Artist     string
+	DiscogsID  string
+	CreatedAt  string
+	UpdatedAt  string
+	Year       string
+	CoverImage string
+	ThumbImage string
+	Genres     string
+	Styles     string
 }{
-	ID:        "id",
-	Title:     "title",
-	Artist:    "artist",
-	DiscogsID: "discogs_id",
-	CreatedAt: "created_at",
-	UpdatedAt: "updated_at",
+	ID:         "id",
+	Title:      "title",
+	Artist:     "artist",
+	DiscogsID:  "discogs_id",
+	CreatedAt:  "created_at",
+	UpdatedAt:  "updated_at",
+	Year:       "year",
+	CoverImage: "cover_image",
+	ThumbImage: "thumb_image",
+	Genres:     "genres",
+	Styles:     "styles",
 }
 
 var VinylRecordTableColumns = struct {
-	ID        string
-	Title     string
-	Artist    string
-	DiscogsID string
-	CreatedAt string
-	UpdatedAt string
+	ID         string
+	Title      string
+	Artist     string
+	DiscogsID  string
+	CreatedAt  string
+	UpdatedAt  string
+	Year       string
+	CoverImage string
+	ThumbImage string
+	Genres     string
+	Styles     string
 }{
-	ID:        "vinyl_records.id",
-	Title:     "vinyl_records.title",
-	Artist:    "vinyl_records.artist",
-	DiscogsID: "vinyl_records.discogs_id",
-	CreatedAt: "vinyl_records.created_at",
-	UpdatedAt: "vinyl_records.updated_at",
+	ID:         "vinyl_records.id",
+	Title:      "vinyl_records.title",
+	Artist:     "vinyl_records.artist",
+	DiscogsID:  "vinyl_records.discogs_id",
+	CreatedAt:  "vinyl_records.created_at",
+	UpdatedAt:  "vinyl_records.updated_at",
+	Year:       "vinyl_records.year",
+	CoverImage: "vinyl_records.cover_image",
+	ThumbImage: "vinyl_records.thumb_image",
+	Genres:     "vinyl_records.genres",
+	Styles:     "vinyl_records.styles",
 }
 
 // Generated where
 
+type whereHelpernull_Int struct{ field string }
+
+func (w whereHelpernull_Int) EQ(x null.Int) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, false, x)
+}
+func (w whereHelpernull_Int) NEQ(x null.Int) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, true, x)
+}
+func (w whereHelpernull_Int) LT(x null.Int) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LT, x)
+}
+func (w whereHelpernull_Int) LTE(x null.Int) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LTE, x)
+}
+func (w whereHelpernull_Int) GT(x null.Int) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GT, x)
+}
+func (w whereHelpernull_Int) GTE(x null.Int) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GTE, x)
+}
+func (w whereHelpernull_Int) IN(slice []int) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
+}
+func (w whereHelpernull_Int) NIN(slice []int) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
+}
+
+func (w whereHelpernull_Int) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
+func (w whereHelpernull_Int) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
+
+func (w whereHelpertypes_StringArray) IsNull() qm.QueryMod { return qmhelper.WhereIsNull(w.field) }
+func (w whereHelpertypes_StringArray) IsNotNull() qm.QueryMod {
+	return qmhelper.WhereIsNotNull(w.field)
+}
+
 var VinylRecordWhere = struct {
-	ID        whereHelperint
-	Title     whereHelperstring
-	Artist    whereHelperstring
-	DiscogsID whereHelperint
-	CreatedAt whereHelpertime_Time
-	UpdatedAt whereHelpertime_Time
+	ID         whereHelperint
+	Title      whereHelperstring
+	Artist     whereHelperstring
+	DiscogsID  whereHelperint
+	CreatedAt  whereHelpertime_Time
+	UpdatedAt  whereHelpertime_Time
+	Year       whereHelpernull_Int
+	CoverImage whereHelpernull_String
+	ThumbImage whereHelpernull_String
+	Genres     whereHelpertypes_StringArray
+	Styles     whereHelpertypes_StringArray
 }{
-	ID:        whereHelperint{field: "\"vinyl_records\".\"id\""},
-	Title:     whereHelperstring{field: "\"vinyl_records\".\"title\""},
-	Artist:    whereHelperstring{field: "\"vinyl_records\".\"artist\""},
-	DiscogsID: whereHelperint{field: "\"vinyl_records\".\"discogs_id\""},
-	CreatedAt: whereHelpertime_Time{field: "\"vinyl_records\".\"created_at\""},
-	UpdatedAt: whereHelpertime_Time{field: "\"vinyl_records\".\"updated_at\""},
+	ID:         whereHelperint{field: "\"vinyl_records\".\"id\""},
+	Title:      whereHelperstring{field: "\"vinyl_records\".\"title\""},
+	Artist:     whereHelperstring{field: "\"vinyl_records\".\"artist\""},
+	DiscogsID:  whereHelperint{field: "\"vinyl_records\".\"discogs_id\""},
+	CreatedAt:  whereHelpertime_Time{field: "\"vinyl_records\".\"created_at\""},
+	UpdatedAt:  whereHelpertime_Time{field: "\"vinyl_records\".\"updated_at\""},
+	Year:       whereHelpernull_Int{field: "\"vinyl_records\".\"year\""},
+	CoverImage: whereHelpernull_String{field: "\"vinyl_records\".\"cover_image\""},
+	ThumbImage: whereHelpernull_String{field: "\"vinyl_records\".\"thumb_image\""},
+	Genres:     whereHelpertypes_StringArray{field: "\"vinyl_records\".\"genres\""},
+	Styles:     whereHelpertypes_StringArray{field: "\"vinyl_records\".\"styles\""},
 }
 
 // VinylRecordRels is where relationship names are stored.
@@ -121,9 +201,9 @@ func (r *vinylRecordR) GetVinylSides() VinylSideSlice {
 type vinylRecordL struct{}
 
 var (
-	vinylRecordAllColumns            = []string{"id", "title", "artist", "discogs_id", "created_at", "updated_at"}
+	vinylRecordAllColumns            = []string{"id", "title", "artist", "discogs_id", "created_at", "updated_at", "year", "cover_image", "thumb_image", "genres", "styles"}
 	vinylRecordColumnsWithoutDefault = []string{"title", "artist", "discogs_id"}
-	vinylRecordColumnsWithDefault    = []string{"id", "created_at", "updated_at"}
+	vinylRecordColumnsWithDefault    = []string{"id", "created_at", "updated_at", "year", "cover_image", "thumb_image", "genres", "styles"}
 	vinylRecordPrimaryKeyColumns     = []string{"id"}
 	vinylRecordGeneratedColumns      = []string{}
 )

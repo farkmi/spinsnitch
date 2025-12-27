@@ -10,20 +10,30 @@ import (
 )
 
 type VinylRecord struct {
-	ID        int
-	Title     string
-	Artist    string
-	DiscogsID int
-	CreatedAt time.Time
+	ID         int
+	Title      string
+	Artist     string
+	DiscogsID  int
+	CreatedAt  time.Time
+	Year       int
+	CoverImage string
+	ThumbImage string
+	Genres     []string
+	Styles     []string
 }
 
 func (v *VinylRecord) ToTypes() *types.VinylRecord {
 	return &types.VinylRecord{
-		ID:        swag.Int64(int64(v.ID)),
-		Title:     swag.String(v.Title),
-		Artist:    swag.String(v.Artist),
-		DiscogsID: swag.Int64(int64(v.DiscogsID)),
-		CreatedAt: strfmt.DateTime(v.CreatedAt),
+		ID:         swag.Int64(int64(v.ID)),
+		Title:      swag.String(v.Title),
+		Artist:     swag.String(v.Artist),
+		DiscogsID:  swag.Int64(int64(v.DiscogsID)),
+		CreatedAt:  strfmt.DateTime(v.CreatedAt),
+		Year:       int64(v.Year),
+		CoverImage: v.CoverImage,
+		ThumbImage: v.ThumbImage,
+		Genres:     v.Genres,
+		Styles:     v.Styles,
 	}
 }
 
@@ -40,11 +50,16 @@ func (s VinylRecordSlice) ToTypes() []*types.VinylRecord {
 
 func (s VinylRecordSlice) ToSearchTypes() []*types.VinylSearchResult {
 	result := make([]*types.VinylSearchResult, len(s))
-	for i, v := range s {
+	for i, vinyl := range s {
 		result[i] = &types.VinylSearchResult{
-			DiscogsID: swag.Int64(int64(v.DiscogsID)),
-			Title:     swag.String(v.Title),
-			Artist:    swag.String(v.Artist),
+			DiscogsID:  swag.Int64(int64(vinyl.DiscogsID)),
+			Title:      swag.String(vinyl.Title),
+			Artist:     swag.String(vinyl.Artist),
+			CoverImage: vinyl.CoverImage,
+			ThumbImage: vinyl.ThumbImage,
+			Year:       int64(vinyl.Year),
+			Genres:     vinyl.Genres,
+			Styles:     vinyl.Styles,
 		}
 	}
 	return result
@@ -53,11 +68,16 @@ func (s VinylRecordSlice) ToSearchTypes() []*types.VinylSearchResult {
 // FromModel converts a SQLBoiler model to a DTO
 func VinylRecordFromModel(model *models.VinylRecord) *VinylRecord {
 	return &VinylRecord{
-		ID:        model.ID,
-		Title:     model.Title,
-		Artist:    model.Artist,
-		DiscogsID: model.DiscogsID,
-		CreatedAt: model.CreatedAt,
+		ID:         model.ID,
+		Title:      model.Title,
+		Artist:     model.Artist,
+		DiscogsID:  model.DiscogsID,
+		CreatedAt:  model.CreatedAt,
+		Year:       model.Year.Int,
+		CoverImage: model.CoverImage.String,
+		ThumbImage: model.ThumbImage.String,
+		Genres:     model.Genres,
+		Styles:     model.Styles,
 	}
 }
 

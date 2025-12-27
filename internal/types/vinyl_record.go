@@ -23,6 +23,9 @@ type VinylRecord struct {
 	// Required: true
 	Artist *string `json:"artist"`
 
+	// cover image
+	CoverImage string `json:"coverImage,omitempty"`
+
 	// created at
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
@@ -31,13 +34,25 @@ type VinylRecord struct {
 	// Required: true
 	DiscogsID *int64 `json:"discogsId"`
 
+	// genres
+	Genres []string `json:"genres"`
+
 	// id
 	// Required: true
 	ID *int64 `json:"id"`
 
+	// styles
+	Styles []string `json:"styles"`
+
+	// thumb image
+	ThumbImage string `json:"thumbImage,omitempty"`
+
 	// title
 	// Required: true
 	Title *string `json:"title"`
+
+	// year
+	Year int64 `json:"year,omitempty"`
 }
 
 // Validate validates this vinyl record

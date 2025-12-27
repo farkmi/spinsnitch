@@ -581,7 +581,7 @@ func testVinylRecordsSelect(t *testing.T) {
 }
 
 var (
-	vinylRecordDBTypes = map[string]string{`ID`: `integer`, `Title`: `text`, `Artist`: `text`, `DiscogsID`: `integer`, `CreatedAt`: `timestamp with time zone`, `UpdatedAt`: `timestamp with time zone`}
+	vinylRecordDBTypes = map[string]string{`ID`: `integer`, `Title`: `text`, `Artist`: `text`, `DiscogsID`: `integer`, `CreatedAt`: `timestamp with time zone`, `UpdatedAt`: `timestamp with time zone`, `Year`: `integer`, `CoverImage`: `text`, `ThumbImage`: `text`, `Genres`: `ARRAYtext`, `Styles`: `ARRAYtext`}
 	_                  = bytes.MinRead
 )
 

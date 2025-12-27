@@ -18,6 +18,20 @@ definitions:
       createdAt:
         type: string
         format: date-time
+      year:
+        type: integer
+      coverImage:
+        type: string
+      thumbImage:
+        type: string
+      genres:
+        type: array
+        items:
+          type: string
+      styles:
+        type: array
+        items:
+          type: string
 
   PlayPayload:
     type: object
@@ -67,3 +81,17 @@ definitions:
         type: string
       artist:
         type: string
+      year:
+        type: integer
+      coverImage:
+        type: string
+      thumbImage:
+        type: string
+      genres:
+        type: array
+        items:
+          type: string
+      styles:
+        type: array
+        items:
+          type: string

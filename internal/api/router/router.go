@@ -240,6 +240,9 @@ func Init(s *api.Server) error {
 		APIV1Vinyl: s.Echo.Group("/api/v1/vinyls", middleware.Auth(s)),
 	}
 
+	// Serve static files (covers etc)
+	s.Echo.Static("/static", "/app/data/public")
+
 	// ---
 	// Finally attach our handlers
 	handlers.AttachAllRoutes(s)

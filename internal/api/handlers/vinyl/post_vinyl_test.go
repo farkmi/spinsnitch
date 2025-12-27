@@ -1,6 +1,7 @@
 package vinyl_test
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -21,14 +22,24 @@ func TestPostVinyl(t *testing.T) {
 	// Mock Server setup (Common for most tests)
 	discogsServer := httptest.NewServer(http.HandlerFunc(func(respWriter http.ResponseWriter, req *http.Request) {
 		if strings.Contains(req.URL.Path, "/releases/12345") {
-			respWriter.Header().Set("Content-Type", "application/json")
 			respWriter.WriteHeader(http.StatusOK)
-			_, _ = respWriter.Write([]byte(`{
+			_, _ = fmt.Fprintf(respWriter, `{
                 "id": 12345,
                 "title": "Random Access Memories",
                 "artists": [{"name": "Daft Punk"}],
+                "year": 2013,
+                "images": [
+                    {
+                        "type": "primary",
+                        "uri": "http://%s/cover.jpg"
+                    }
+                ],
                 "tracklist": []
-            }`))
+            }`, req.Host)
+		}
+		if strings.Contains(req.URL.Path, "/cover.jpg") {
+			respWriter.WriteHeader(http.StatusOK)
+			_, _ = respWriter.Write([]byte("fake-image-data"))
 			return
 		}
 		respWriter.WriteHeader(http.StatusNotFound)
@@ -52,6 +63,9 @@ func TestPostVinyl(t *testing.T) {
 		var response types.VinylRecord
 		test.ParseResponseAndValidate(t, res, &response)
 		assert.Equal(t, int64(12345), *response.DiscogsID)
+		assert.Equal(t, int64(2013), response.Year)
+		// We expect the image to be downloaded and a local static path returned
+		assert.Contains(t, response.CoverImage, "/static/covers/12345.jpg")
 
 		// Invalid Payload
 		resBad := test.PerformRequest(t, s, "POST", "/api/v1/vinyls", nil, authHeaders)

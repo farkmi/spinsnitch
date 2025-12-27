@@ -3,6 +3,9 @@ package vinyl
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -10,6 +13,7 @@ import (
 	"github.com/aarondl/null/v8"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
+	"github.com/aarondl/sqlboiler/v4/types"
 	"github.com/farkmi/spinsnitch-server/internal/data/dto"
 	"github.com/farkmi/spinsnitch-server/internal/discogs"
 	"github.com/farkmi/spinsnitch-server/internal/models"
@@ -88,7 +92,10 @@ func (s *Service) AddVinyl(ctx context.Context, discogsID int) (*dto.VinylRecord
 		return nil, errors.Wrap(err, "failed to fetch release from discogs")
 	}
 
-	// 2. Map to local models
+	// 2. Download Cover Image (Best Effort)
+	coverPath := s.downloadAndSaveCover(ctx, release, discogsID)
+
+	// 3. Map to local models
 	artistName := "Unknown Artist"
 	if len(release.Artists) > 0 {
 		artistName = release.Artists[0].Name
@@ -104,13 +111,20 @@ func (s *Service) AddVinyl(ctx context.Context, discogsID int) (*dto.VinylRecord
 		Title:     release.Title,
 		Artist:    artistName,
 		DiscogsID: discogsID,
+		Year:      null.IntFrom(release.Year),
+		Genres:    types.StringArray(release.Genres),
+		Styles:    types.StringArray(release.Styles),
+	}
+	if coverPath != "" {
+		record.CoverImage = null.StringFrom(coverPath)
+		record.ThumbImage = null.StringFrom(coverPath) // reusing cover for thumb for now
 	}
 
 	if err := record.Insert(ctx, tx, boil.Infer()); err != nil {
 		return nil, errors.Wrap(err, "failed to insert vinyl record")
 	}
 
-	// 3. Process Tracks and Sides
+	// 4. Process Tracks and Sides
 	// Logic to group tracks by side based on position (A1, A2, B1, etc.)
 	sideMap := make(map[string]*models.VinylSide)
 
@@ -225,4 +239,36 @@ func (s *Service) GetMistreated(ctx context.Context) (dto.MistreatedRecordSlice,
 	}
 
 	return results, nil
+}
+
+func (s *Service) downloadAndSaveCover(ctx context.Context, release *discogs.Release, discogsID int) string {
+	if len(release.Images) == 0 {
+		return ""
+	}
+
+	imageURL := release.Images[0].URI
+	if imageURL == "" {
+		return ""
+	}
+
+	data, err := s.discogsClient.DownloadImage(ctx, imageURL)
+	if err != nil {
+		return ""
+	}
+
+	// Save to /app/data/public/covers/{id}.jpg
+	saveDir := "/app/data/public/covers"
+	if err := os.MkdirAll(saveDir, 0755); err != nil {
+		return ""
+	}
+
+	filename := fmt.Sprintf("%d.jpg", discogsID)
+	fullPath := filepath.Join(saveDir, filename)
+
+	// #nosec G306 - Publicly readable images are intended
+	if err := os.WriteFile(fullPath, data, 0644); err != nil {
+		return ""
+	}
+
+	return fmt.Sprintf("/static/covers/%s", filename)
 }

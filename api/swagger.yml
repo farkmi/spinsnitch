@@ -443,15 +443,29 @@ paths:
             properties:
               artist:
                 type: string
+              coverImage:
+                type: string
               createdAt:
                 type: string
                 format: date-time
               discogsId:
                 type: integer
+              genres:
+                type: array
+                items:
+                  type: string
               id:
                 type: integer
+              styles:
+                type: array
+                items:
+                  type: string
+              thumbImage:
+                type: string
               title:
                 type: string
+              year:
+                type: integer
         "400":
           description: Bad Request
         "500":
@@ -851,15 +865,29 @@ definitions:
     properties:
       artist:
         type: string
+      coverImage:
+        type: string
       createdAt:
         type: string
         format: date-time
       discogsId:
         type: integer
+      genres:
+        type: array
+        items:
+          type: string
       id:
         type: integer
+      styles:
+        type: array
+        items:
+          type: string
+      thumbImage:
+        type: string
       title:
         type: string
+      year:
+        type: integer
   vinylSearchResult:
     type: object
     required:
@@ -869,10 +897,24 @@ definitions:
     properties:
       artist:
         type: string
+      coverImage:
+        type: string
       discogsId:
         type: integer
+      genres:
+        type: array
+        items:
+          type: string
+      styles:
+        type: array
+        items:
+          type: string
+      thumbImage:
+        type: string
       title:
         type: string
+      year:
+        type: integer
 parameters:
   registrationTokenParam:
     type: string

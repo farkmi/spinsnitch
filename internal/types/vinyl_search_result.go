@@ -23,13 +23,28 @@ type VinylSearchResult struct {
 	// Required: true
 	Artist *string `json:"artist"`
 
+	// cover image
+	CoverImage string `json:"coverImage,omitempty"`
+
 	// discogs Id
 	// Required: true
 	DiscogsID *int64 `json:"discogsId"`
 
+	// genres
+	Genres []string `json:"genres"`
+
+	// styles
+	Styles []string `json:"styles"`
+
+	// thumb image
+	ThumbImage string `json:"thumbImage,omitempty"`
+
 	// title
 	// Required: true
 	Title *string `json:"title"`
+
+	// year
+	Year int64 `json:"year,omitempty"`
 }
 
 // Validate validates this vinyl search result
