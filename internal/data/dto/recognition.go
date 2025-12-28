@@ -2,6 +2,7 @@ package dto
 
 import (
 	"github.com/farkmi/spinsnitch-server/internal/types"
+	"github.com/farkmi/spinsnitch-server/internal/util/publicurl"
 )
 
 type RecognitionResult struct {
@@ -12,12 +13,12 @@ type RecognitionResult struct {
 	Success   bool
 }
 
-func (r *RecognitionResult) ToTypes() *types.RecognitionResult {
+func (r *RecognitionResult) ToTypes(baseURL string) *types.RecognitionResult {
 	return &types.RecognitionResult{
 		Artist:    r.Artist,
 		Title:     r.Title,
 		ShazamURL: r.ShazamURL,
-		CoverArt:  r.CoverArt,
+		CoverArt:  publicurl.Enrich(baseURL, r.CoverArt),
 		Success:   r.Success,
 	}
 }

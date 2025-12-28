@@ -27,6 +27,6 @@ func postVinylHandler(s *api.Server) echo.HandlerFunc {
 			return err
 		}
 
-		return util.ValidateAndReturn(c, http.StatusOK, record.ToTypes())
+		return util.ValidateAndReturn(c, http.StatusOK, record.ToTypes(s.Config.Echo.BaseURL))
 	}
 }

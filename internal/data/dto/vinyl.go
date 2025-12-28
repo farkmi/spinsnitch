@@ -5,6 +5,7 @@ import (
 
 	"github.com/farkmi/spinsnitch-server/internal/models"
 	"github.com/farkmi/spinsnitch-server/internal/types"
+	"github.com/farkmi/spinsnitch-server/internal/util/publicurl"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
@@ -22,7 +23,7 @@ type VinylRecord struct {
 	Styles     []string
 }
 
-func (v *VinylRecord) ToTypes() *types.VinylRecord {
+func (v *VinylRecord) ToTypes(baseURL string) *types.VinylRecord {
 	return &types.VinylRecord{
 		ID:         swag.Int64(int64(v.ID)),
 		Title:      swag.String(v.Title),
@@ -30,8 +31,8 @@ func (v *VinylRecord) ToTypes() *types.VinylRecord {
 		DiscogsID:  swag.Int64(int64(v.DiscogsID)),
 		CreatedAt:  strfmt.DateTime(v.CreatedAt),
 		Year:       int64(v.Year),
-		CoverImage: v.CoverImage,
-		ThumbImage: v.ThumbImage,
+		CoverImage: publicurl.Enrich(baseURL, v.CoverImage),
+		ThumbImage: publicurl.Enrich(baseURL, v.ThumbImage),
 		Genres:     v.Genres,
 		Styles:     v.Styles,
 	}
@@ -40,23 +41,23 @@ func (v *VinylRecord) ToTypes() *types.VinylRecord {
 // Slice wrapper for converting multiple records
 type VinylRecordSlice []*VinylRecord
 
-func (s VinylRecordSlice) ToTypes() []*types.VinylRecord {
+func (s VinylRecordSlice) ToTypes(baseURL string) []*types.VinylRecord {
 	result := make([]*types.VinylRecord, len(s))
 	for i, v := range s {
-		result[i] = v.ToTypes()
+		result[i] = v.ToTypes(baseURL)
 	}
 	return result
 }
 
-func (s VinylRecordSlice) ToSearchTypes() []*types.VinylSearchResult {
+func (s VinylRecordSlice) ToSearchTypes(baseURL string) []*types.VinylSearchResult {
 	result := make([]*types.VinylSearchResult, len(s))
 	for i, vinyl := range s {
 		result[i] = &types.VinylSearchResult{
 			DiscogsID:  swag.Int64(int64(vinyl.DiscogsID)),
 			Title:      swag.String(vinyl.Title),
 			Artist:     swag.String(vinyl.Artist),
-			CoverImage: vinyl.CoverImage,
-			ThumbImage: vinyl.ThumbImage,
+			CoverImage: publicurl.Enrich(baseURL, vinyl.CoverImage),
+			ThumbImage: publicurl.Enrich(baseURL, vinyl.ThumbImage),
 			Year:       int64(vinyl.Year),
 			Genres:     vinyl.Genres,
 			Styles:     vinyl.Styles,

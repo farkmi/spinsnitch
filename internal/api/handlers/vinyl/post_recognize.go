@@ -41,6 +41,6 @@ func postRecognizeHandler(s *api.Server) echo.HandlerFunc {
 			return err
 		}
 
-		return util.ValidateAndReturn(c, http.StatusOK, result.ToTypes())
+		return util.ValidateAndReturn(c, http.StatusOK, result.ToTypes(s.Config.Echo.BaseURL))
 	}
 }

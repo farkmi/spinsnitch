@@ -20,6 +20,6 @@ func getVinylsHandler(s *api.Server) echo.HandlerFunc {
 			return err
 		}
 
-		return c.JSON(http.StatusOK, records.ToTypes())
+		return c.JSON(http.StatusOK, records.ToTypes(s.Config.Echo.BaseURL))
 	}
 }

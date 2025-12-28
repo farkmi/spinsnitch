@@ -25,6 +25,6 @@ func getVinylSearchHandler(s *api.Server) echo.HandlerFunc {
 			return err
 		}
 
-		return c.JSON(http.StatusOK, records.ToSearchTypes())
+		return c.JSON(http.StatusOK, records.ToSearchTypes(s.Config.Echo.BaseURL))
 	}
 }
