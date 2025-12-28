@@ -31,8 +31,9 @@ jobs:
 
       - name: Run tests
         run: |
-          # Basic smoke test for the FastAPI app
-          python -m pytest tests/
+          # Ensure python path is set correctly if needed, or just run pytest
+          export PYTHONPATH=$PYTHONPATH:$(pwd)
+          python3 -m pytest tests/
 
   build-and-push:
     needs: test
