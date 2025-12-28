@@ -1,14 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
-import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:http/http.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
-import 'package:record/record.dart';
 import 'package:spinsnitch_api/api.dart';
+import 'recognition_service.dart';
 
 // Key for the API base URL in service communication
 const String kServiceApiBaseUrl = 'api_base_url';
@@ -71,7 +67,6 @@ class BackgroundRecognitionService {
 
     String? apiBaseUrl;
     String? authToken;
-    final recorder = AudioRecorder();
     Timer? cycleTimer;
 
     service.on('set_config').listen((event) {
@@ -81,7 +76,6 @@ class BackgroundRecognitionService {
 
     service.on('stop').listen((event) {
       cycleTimer?.cancel();
-      recorder.dispose();
       service.stopSelf();
     });
 
@@ -96,7 +90,7 @@ class BackgroundRecognitionService {
       service.invoke('status', {'isRecording': true});
       
       try {
-        final result = await _recordAndRecognize(recorder, apiBaseUrl!, authToken);
+        final result = await _recordAndRecognize(apiBaseUrl!, authToken);
         
         service.invoke('result', result?.toJson());
         
@@ -112,31 +106,10 @@ class BackgroundRecognitionService {
 
     runCycle();
   }
-
   static Future<RecognitionResult?> _recordAndRecognize(
-    AudioRecorder recorder,
     String apiBaseUrl,
     String? authToken,
   ) async {
-    final tempDir = await getTemporaryDirectory();
-    final path = p.join(tempDir.path, 'bg_snippet.m4a');
-
-    if (!await recorder.hasPermission()) return null;
-
-    const config = RecordConfig(
-      encoder: AudioEncoder.aacLc,
-      bitRate: 128000,
-      sampleRate: 44100,
-    );
-
-    await recorder.start(config, path: path);
-    await Future.delayed(const Duration(seconds: 5));
-    final filePath = await recorder.stop();
-
-    if (filePath == null) return null;
-
-    final fileBytes = await File(filePath).readAsBytes();
-    
     // Setup API Client inside service
     Authentication? auth;
     if (authToken != null) {
@@ -144,16 +117,10 @@ class BackgroundRecognitionService {
       bearerAuth.accessToken = authToken;
       auth = bearerAuth;
     }
-    
+
     final apiClient = ApiClient(basePath: apiBaseUrl, authentication: auth);
-    final vinylApi = VinylApi(apiClient);
+    final recognitionService = RecognitionService(apiClient);
 
-    final multipartFile = MultipartFile.fromBytes(
-      'file',
-      fileBytes,
-      filename: 'snippet.m4a',
-    );
-
-    return await vinylApi.postRecognizeRoute(multipartFile);
+    return await recognitionService.recordAndRecognize();
   }
 }
