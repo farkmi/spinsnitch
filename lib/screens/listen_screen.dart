@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:spinsnitch_api/api.dart';
 import '../auth/auth_provider.dart';
+import '../services/recognition_provider.dart';
 import '../utils/error_utils.dart';
 
 class ListenScreen extends StatefulWidget {
@@ -70,6 +71,8 @@ class _ListenScreenState extends State<ListenScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final recognition = context.watch<RecognitionProvider>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Recording Play'),
@@ -77,6 +80,9 @@ class _ListenScreenState extends State<ListenScreen> {
       ),
       body: Column(
         children: [
+          // Recognition Status Card
+          _buildRecognitionCard(recognition),
+          
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
@@ -127,6 +133,123 @@ class _ListenScreenState extends State<ListenScreen> {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: recognition.toggleListening,
+        backgroundColor: recognition.isListening ? Colors.red.shade800 : Colors.teal,
+        foregroundColor: Colors.white,
+        icon: Icon(recognition.isListening ? Icons.stop : Icons.mic),
+        label: Text(recognition.isListening ? 'Stop Listening' : 'Start Listening'),
+      ),
     );
+  }
+
+  Widget _buildRecognitionCard(RecognitionProvider recognition) {
+    if (!recognition.isListening && recognition.lastResult == null) {
+      return const SizedBox.shrink();
+    }
+
+    return Card(
+      margin: const EdgeInsets.all(16),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Icon(
+                  recognition.isRecording ? Icons.radio_button_checked : Icons.mic,
+                  color: recognition.isRecording ? Colors.red : Colors.teal,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  recognition.isRecording ? 'Listening for music...' : 'Active Listener',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: recognition.isRecording ? Colors.red : Colors.teal,
+                  ),
+                ),
+                const Spacer(),
+                if (recognition.lastResult != null)
+                  Text(
+                    (recognition.lastResult!.success ?? false) ? 'Matched' : 'No Match',
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+              ],
+            ),
+            if (recognition.lastResult != null && (recognition.lastResult!.success ?? false)) ...[
+              const Divider(height: 24),
+              Row(
+                children: [
+                  if (recognition.lastResult!.coverArt != null)
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        recognition.lastResult!.coverArt!,
+                        width: 60,
+                        height: 60,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  else
+                    const Icon(Icons.music_note, size: 60),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          recognition.lastResult!.title ?? 'Unknown Title',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          recognition.lastResult!.artist ?? 'Unknown Artist',
+                          style: const TextStyle(color: Colors.grey),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.add_circle_outline, color: Colors.teal),
+                    tooltip: 'Register Play',
+                    onPressed: () {
+                      // Call play registration with recognized info
+                      _registerPlayForRecognized(recognition.lastResult!);
+                    },
+                  ),
+                ],
+              ),
+            ] else if (recognition.error != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Text(
+                  recognition.error!,
+                  style: const TextStyle(color: Colors.red, fontSize: 12),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _registerPlayForRecognized(RecognitionResult result) async {
+     try {
+      final payload = PlayPayload(artist: result.artist ?? 'Unknown', title: result.title ?? 'Unknown');
+      await _vinylApi.postPlayRoute(payload: payload);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Recorded play for ${result.title}!')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ErrorUtils.showErrorSnackBar(context, 'Failed to record play: $e');
+      }
+    }
   }
 }

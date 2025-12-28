@@ -14,6 +14,7 @@ Method | HTTP request | Description
 [**getVinylSearchRoute**](VinylApi.md#getvinylsearchroute) | **GET** /api/v1/vinyls/search | Search for vinyl records on Discogs
 [**getVinylsRoute**](VinylApi.md#getvinylsroute) | **GET** /api/v1/vinyls | List all vinyl records
 [**postPlayRoute**](VinylApi.md#postplayroute) | **POST** /api/v1/vinyls/play | Register a play
+[**postRecognizeRoute**](VinylApi.md#postrecognizeroute) | **POST** /api/v1/vinyls/recognize | Recognize a music snippet
 [**postVinylRoute**](VinylApi.md#postvinylroute) | **POST** /api/v1/vinyls | Add a new vinyl record
 
 
@@ -230,6 +231,53 @@ void (empty response body)
 
  - **Content-Type**: application/json
  - **Accept**: Not defined
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **postRecognizeRoute**
+> RecognitionResult postRecognizeRoute(file)
+
+Recognize a music snippet
+
+Upload an audio snippet to identify the music.
+
+### Example
+```dart
+import 'package:spinsnitch_api/api.dart';
+// TODO Configure API key authorization: Bearer
+//defaultApiClient.getAuthentication<ApiKeyAuth>('Bearer').apiKey = 'YOUR_API_KEY';
+// uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+//defaultApiClient.getAuthentication<ApiKeyAuth>('Bearer').apiKeyPrefix = 'Bearer';
+
+final api_instance = VinylApi();
+final file = BINARY_DATA_HERE; // MultipartFile | 
+
+try {
+    final result = api_instance.postRecognizeRoute(file);
+    print(result);
+} catch (e) {
+    print('Exception when calling VinylApi->postRecognizeRoute: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **file** | **MultipartFile**|  | 
+
+### Return type
+
+[**RecognitionResult**](RecognitionResult.md)
+
+### Authorization
+
+[Bearer](../README.md#Bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: multipart/form-data
+ - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

@@ -54,6 +54,7 @@ part 'model/public_http_error_type.dart';
 part 'model/public_http_validation_error.dart';
 part 'model/put_update_push_token_payload.dart';
 part 'model/recent_plays_response.dart';
+part 'model/recognition_result.dart';
 part 'model/register_response.dart';
 part 'model/track_play.dart';
 part 'model/user_scope.dart';
