@@ -27,6 +27,7 @@ var serviceSet = wire.NewSet(
 	NewClock,
 	NewDiscogsClient,
 	NewVinylService,
+	NewRecognitionService,
 )
 
 var authServiceSet = wire.NewSet(

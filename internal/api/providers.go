@@ -15,6 +15,7 @@ import (
 	"github.com/farkmi/spinsnitch-server/internal/persistence"
 	"github.com/farkmi/spinsnitch-server/internal/push"
 	"github.com/farkmi/spinsnitch-server/internal/push/provider"
+	"github.com/farkmi/spinsnitch-server/internal/recognition"
 	"github.com/farkmi/spinsnitch-server/internal/vinyl"
 	"github.com/rs/zerolog/log"
 )
@@ -84,6 +85,10 @@ func NewDiscogsClient(config config.Server) *discogs.Client {
 
 func NewVinylService(db *sql.DB, discogsClient *discogs.Client, clock time2.Clock) *vinyl.Service {
 	return vinyl.NewService(db, discogsClient, clock)
+}
+
+func NewRecognitionService(config config.Server) *recognition.Service {
+	return recognition.NewService(config.Recognizer)
 }
 
 func NoTest() []*testing.T {

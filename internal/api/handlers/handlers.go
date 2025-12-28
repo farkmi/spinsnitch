@@ -35,6 +35,7 @@ func AttachAllRoutes(s *api.Server) {
 		vinyl.GetVinylSearchRoute(s),
 		vinyl.GetVinylsRoute(s),
 		vinyl.PostPlayRoute(s),
+		vinyl.PostRecognizeRoute(s),
 		vinyl.PostVinylRoute(s),
 		wellknown.GetAndroidDigitalAssetLinksRoute(s),
 		wellknown.GetAppleAppSiteAssociationRoute(s),

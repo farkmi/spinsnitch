@@ -116,6 +116,11 @@ type Server struct {
 	FCMConfig  provider.FCMConfig
 	I18n       I18n
 	Discogs    Discogs
+	Recognizer Recognizer
+}
+
+type Recognizer struct {
+	BaseURL string
 }
 
 type Discogs struct {
@@ -263,6 +268,9 @@ func DefaultServiceConfigFromEnv() Server {
 		Discogs: Discogs{
 			Key:    util.GetEnv("SERVER_DISCOGS_KEY", ""),
 			Secret: util.GetEnv("SERVER_DISCOGS_SECRET", ""),
+		},
+		Recognizer: Recognizer{
+			BaseURL: util.GetEnv("SERVER_RECOGNIZER_BASE_URL", "http://recognizer:8000"),
 		},
 	}
 }
