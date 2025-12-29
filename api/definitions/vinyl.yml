@@ -1,0 +1,118 @@
+definitions:
+  VinylRecord:
+    type: object
+    required:
+      - id
+      - title
+      - artist
+      - discogsId
+    properties:
+      id:
+        type: integer
+      title:
+        type: string
+      artist:
+        type: string
+      discogsId:
+        type: integer
+      createdAt:
+        type: string
+        format: date-time
+      year:
+        type: integer
+      coverImage:
+        type: string
+      thumbImage:
+        type: string
+      genres:
+        type: array
+        items:
+          type: string
+      styles:
+        type: array
+        items:
+          type: string
+
+  PlayPayload:
+    type: object
+    required:
+      - title
+      - artist
+    properties:
+      title:
+        type: string
+      artist:
+        type: string
+
+  VinylPayload:
+    type: object
+    required:
+      - discogsId
+    properties:
+      discogsId:
+        type: integer
+
+  MistreatedRecord:
+    type: object
+    properties:
+      title:
+        type: string
+      artist:
+        type: string
+      sideLabel:
+        type: string
+      neglectScore:
+        type: number
+        format: float
+      lastPlayed:
+        type: string
+        format: date-time
+
+  VinylSearchResult:
+    type: object
+    required:
+      - discogsId
+      - title
+      - artist
+    properties:
+      discogsId:
+        type: integer
+      title:
+        type: string
+      artist:
+        type: string
+      year:
+        type: integer
+      coverImage:
+        type: string
+      thumbImage:
+        type: string
+      genres:
+        type: array
+        items:
+          type: string
+      styles:
+        type: array
+        items:
+          type: string
+
+  TrackPlay:
+    type: object
+    properties:
+      id:
+        type: integer
+      title:
+        type: string
+      artist:
+        type: string
+      playedAt:
+        type: string
+        format: date-time
+
+  RecentPlaysResponse:
+    type: object
+    properties:
+      plays:
+        type: array
+        items:
+          $ref: "#/definitions/TrackPlay"

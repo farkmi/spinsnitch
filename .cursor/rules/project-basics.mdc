@@ -1,0 +1,28 @@
+---
+alwaysApply: true
+---
+1. We are working inside a devcontainer / docker-compose setup. 
+2. DB models and operations are generated and accessed via sqlboiler. Run `make sql` to regenerate the models.
+3. API types and validations are generated via go-swagger. Run `make swagger` to regenerate the API types.
+4. Run `make` to run our entire build chain, and `make test` to run the test suite.
+5. Each test is completely isolated - i.e. it receives a fresh, isolated DB, api.Server, etc.
+6. We are working with DTOs. The mapper package provides mapping from data sources (like DB) to DTO, the DTO has a receiver method ToTypes() that maps to the API types.
+7. We have a util package that provides lots of helper functions, like multi-step type conversions.
+8. The handlers should not directly use DB operations - this should be handled in the local service.
+9. We always want to log in error cases. Use Error severity where the error is initially occurring, then Debug throughout the call stack. 
+10. The server_config.go file contains the server's config, which is loaded from env on startup. The defaults should ensure the setup works, e.g. for running tests.
+11. Ensure the project builds by running `make` before declaring a task done. Correct any issues or linter warnings.
+12. internal/data/fixtures contains DB seeds, internal/test/fixtures data that's only available during test execution.
+13. Use the util.BindAndValidate* methods to parse path/query/body params from requests to the generated types.* Structs. Use util.ValidateAndReturn() to return a response from a handler.
+14. Expected errors are defined in the httperrors package.
+15. Service methods should return DTOs. We don't want to pass e.g. elastic or DB types as a result of a service method. 
+16. Service methods should accept primitives or DTOs, we do not want to pass API types to them.
+17. We do not use column or tables names as strings - the models package provides variables for that purpose.
+18. CreatedAt and UpdatedAt timestamps in DB models are set by sqlboiler, unless we explicitly need a different value.
+19. Do not use boil.Infer on Update() - only use Whitelist().
+20. Our middleware already enforces that a user is present - no need to check for nil if loading user from context.
+21. If we're passing more than 2-3 variables to service methods in addition to context, consider creating e.g. a "CreateHighlightRequest" DTO and passing that instead.
+22. Property labels in logging should always be in camelCase.
+23. For slices, we also want to create a plural DTO slice-type, which can then have a receiver method ToTypes(), which returns a slice of API type elements. The DTO Slice type should be called ${DTO-Type}Slice.
+24. Service methods should return a DTO slice-type (e.g. dto.MyBooks), instead of a slice of DTO types ([]dto.MyBook).
+25. Multiple writes within the same handler execution should - generally speaking - be executed in the same transaction (db.WithTransaction()), unless there's a specific reason to decouple them.

@@ -1,0 +1,120 @@
+swagger: "2.0"
+paths:
+  /api/v1/vinyls:
+    post:
+      security:
+        - Bearer: []
+      summary: Add a new vinyl record
+      tags:
+        - vinyl
+      operationId: PostVinylRoute
+      parameters:
+        - name: Payload
+          in: body
+          schema:
+            $ref: ../definitions/vinyl.yml#/definitions/VinylPayload
+      responses:
+        "200":
+          description: Created Vinyl Record
+          schema:
+            $ref: ../definitions/vinyl.yml#/definitions/VinylRecord
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+
+    get:
+      security:
+        - Bearer: []
+      summary: List all vinyl records
+      tags:
+        - vinyl
+      operationId: GetVinylsRoute
+      responses:
+        "200":
+          description: List of Vinyl Records
+          schema:
+            type: array
+            items:
+              $ref: ../definitions/vinyl.yml#/definitions/VinylRecord
+
+  /api/v1/vinyls/recent-plays:
+    get:
+      security:
+        - Bearer: []
+      summary: Get recent track plays
+      tags:
+        - vinyl
+      operationId: GetRecentPlaysRoute
+      parameters:
+        - name: limit
+          in: query
+          type: integer
+          default: 10
+          description: Max number of plays to return
+      responses:
+        "200":
+          description: List of Recent Plays
+          schema:
+            $ref: ../definitions/vinyl.yml#/definitions/RecentPlaysResponse
+
+  /api/v1/vinyls/play:
+    post:
+      security:
+        - Bearer: []
+      summary: Register a play
+      tags:
+        - vinyl
+      operationId: PostPlayRoute
+      parameters:
+        - name: Payload
+          in: body
+          schema:
+            $ref: ../definitions/vinyl.yml#/definitions/PlayPayload
+      responses:
+        "204":
+          description: Play registered successfully
+        "404":
+          description: Track not found
+        "500":
+          description: Internal Server Error
+
+  /api/v1/vinyls/mistreated:
+    get:
+      security:
+        - Bearer: []
+      summary: Get mistreated records
+      tags:
+        - vinyl
+      operationId: GetMistreatedRoute
+      responses:
+        "200":
+          description: List of Mistreated Records
+          schema:
+            type: array
+            items:
+              $ref: ../definitions/vinyl.yml#/definitions/MistreatedRecord
+
+  /api/v1/vinyls/search:
+    get:
+      security:
+        - Bearer: []
+      summary: Search for vinyl records on Discogs
+      tags:
+        - vinyl
+      operationId: GetVinylSearchRoute
+      parameters:
+        - name: q
+          in: query
+          type: string
+          required: true
+          description: Search query (artist, title, barcode)
+      responses:
+        "200":
+          description: Search Results
+          schema:
+            type: array
+            items:
+              $ref: ../definitions/vinyl.yml#/definitions/VinylSearchResult
+        "500":
+          description: Internal Server Error
