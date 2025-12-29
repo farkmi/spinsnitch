@@ -21,7 +21,7 @@ class _ListenScreenState extends State<ListenScreen> {
   final TextEditingController _searchController = TextEditingController();
   
   StreamSubscription? _recognitionSubscription;
-  RecognizedTrack? _lastTrack;
+  RecognitionResult? _lastTrack;
   bool _isAutoMode = false;
 
   @override
@@ -40,18 +40,9 @@ class _ListenScreenState extends State<ListenScreen> {
   }
 
   void _setupRecognition() {
-    final recognitionService = context.read<RecognitionService>();
-    
-    _recognitionSubscription = recognitionService.trackStream.listen((track) {
-      if (mounted) {
-        setState(() {
-          _lastTrack = track;
-        });
-        if (_isAutoMode) {
-          _registerPlayRaw(track.artist, track.title);
-        }
-      }
-    });
+    // Note: Instead of a stream, we can use Provider's notifyListeners
+    // or we could add a stream to RecognitionProvider if needed.
+    // For now, we'll rely on build() and context.watch() for UI updates.
   }
 
   Future<void> _fetchVinyls() async {
@@ -118,21 +109,16 @@ class _ListenScreenState extends State<ListenScreen> {
             icon: Icon(_isAutoMode ? Icons.auto_awesome : Icons.auto_awesome_outlined),
             color: _isAutoMode ? Colors.teal : null,
             onPressed: () async {
-              final recognitionService = context.read<RecognitionService>();
+              final recognition = context.read<RecognitionProvider>();
               if (!_isAutoMode) {
-                final hasPermission = await recognitionService.hasPermission();
-                if (!hasPermission) {
-                  await recognitionService.openPermissionSettings();
-                  return;
-                }
-                recognitionService.startListening();
+                await recognition.startListening();
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Auto-Recognition Enabled')),
                   );
                 }
               } else {
-                recognitionService.stopListening();
+                await recognition.stopListening();
               }
               
               if (mounted) {

@@ -5,8 +5,6 @@ import 'services/recognition_provider.dart';
 import 'config.dart';
 import 'screens/login_screen.dart';
 import 'screens/main_navigation_wrapper.dart';
-import 'services/recognition_service.dart';
-import 'config.dart';
 
 void main() {
   runApp(const MyApp());

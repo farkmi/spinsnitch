@@ -7,8 +7,7 @@ import 'package:path/path.dart' as p;
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart' show MultipartFile;
 
-// Conditional import for File
-import 'dart:io' if (dart.library.html) 'dart:typed_data' show File;
+import 'dart:io' if (dart.library.html) 'web_dummy.dart' show File;
 
 class RecognitionService {
   final ApiClient apiClient;
@@ -61,7 +60,7 @@ class RecognitionService {
       // On native, we use File to read the bytes
       // The conditional import above ensures this compiles on web (though it won't run)
       final file = File(stoppedPath);
-      final bytes = await (file as dynamic).readAsBytes();
+      final bytes = await file.readAsBytes();
 
       final multipartFile = MultipartFile.fromBytes(
         'file',
