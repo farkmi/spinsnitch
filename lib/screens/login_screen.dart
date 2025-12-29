@@ -86,6 +86,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             children: [
                               TextFormField(
                                 controller: _usernameController,
+                                keyboardType: TextInputType.emailAddress,
+                                textInputAction: TextInputAction.next,
                                 decoration: const InputDecoration(
                                   labelText: 'Email',
                                   prefixIcon: Icon(Icons.email_outlined),
@@ -93,12 +95,20 @@ class _LoginScreenState extends State<LoginScreen> {
                                     borderRadius: BorderRadius.all(Radius.circular(12)),
                                   ),
                                 ),
-                                validator: (value) =>
-                                    value!.isEmpty ? 'Please enter email' : null,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter email';
+                                  }
+                                  if (!value.contains('@') || !value.contains('.')) {
+                                    return 'Please enter a valid email';
+                                  }
+                                  return null;
+                                },
                               ),
                               const SizedBox(height: 16),
                               TextFormField(
                                 controller: _passwordController,
+                                textInputAction: TextInputAction.done,
                                 decoration: const InputDecoration(
                                   labelText: 'Password',
                                   prefixIcon: Icon(Icons.lock_outline),
@@ -107,6 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 ),
                                 obscureText: true,
+                                onFieldSubmitted: (_) => _login(),
                                 validator: (value) =>
                                     value!.isEmpty ? 'Please enter password' : null,
                               ),

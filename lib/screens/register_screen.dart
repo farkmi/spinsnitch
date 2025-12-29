@@ -88,6 +88,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             children: [
                               TextFormField(
                                 controller: _usernameController,
+                                keyboardType: TextInputType.emailAddress,
+                                textInputAction: TextInputAction.next,
                                 decoration: const InputDecoration(
                                   labelText: 'Email',
                                   prefixIcon: Icon(Icons.email_outlined),
@@ -95,12 +97,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     borderRadius: BorderRadius.all(Radius.circular(12)),
                                   ),
                                 ),
-                                validator: (value) =>
-                                    value!.isEmpty ? 'Please enter email' : null,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter email';
+                                  }
+                                  if (!value.contains('@') || !value.contains('.')) {
+                                    return 'Please enter a valid email';
+                                  }
+                                  return null;
+                                },
                               ),
                               const SizedBox(height: 16),
                               TextFormField(
                                 controller: _passwordController,
+                                textInputAction: TextInputAction.next,
                                 decoration: const InputDecoration(
                                   labelText: 'Password',
                                   prefixIcon: Icon(Icons.lock_outline),
@@ -115,6 +125,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               const SizedBox(height: 16),
                               TextFormField(
                                 controller: _confirmController,
+                                textInputAction: TextInputAction.done,
                                 decoration: const InputDecoration(
                                   labelText: 'Confirm Password',
                                   prefixIcon: Icon(Icons.lock_reset),
@@ -123,6 +134,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   ),
                                 ),
                                 obscureText: true,
+                                onFieldSubmitted: (_) => _register(),
                                 validator: (value) {
                                   if (value != _passwordController.text) {
                                     return 'Passwords do not match';
