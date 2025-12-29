@@ -15,6 +15,7 @@ import (
 	"github.com/farkmi/spinsnitch-server/internal/mailer"
 	"github.com/farkmi/spinsnitch-server/internal/metrics"
 	"github.com/farkmi/spinsnitch-server/internal/push"
+	"github.com/farkmi/spinsnitch-server/internal/recognition"
 	"github.com/farkmi/spinsnitch-server/internal/util"
 	"github.com/farkmi/spinsnitch-server/internal/vinyl"
 	"github.com/labstack/echo/v4"
@@ -49,16 +50,17 @@ type Server struct {
 	Echo   *echo.Echo `wire:"-"`
 	Router *Router    `wire:"-"`
 
-	Config  config.Server
-	DB      *sql.DB
-	Mailer  *mailer.Mailer
-	Push    *push.Service
-	I18n    *i18n.Service
-	Clock   time2.Clock
-	Auth    AuthService
-	Local   *local.Service
-	Metrics *metrics.Service
-	Vinyl   *vinyl.Service
+	Config      config.Server
+	DB          *sql.DB
+	Mailer      *mailer.Mailer
+	Push        *push.Service
+	I18n        *i18n.Service
+	Clock       time2.Clock
+	Auth        AuthService
+	Local       *local.Service
+	Metrics     *metrics.Service
+	Vinyl       *vinyl.Service
+	Recognition *recognition.Service
 }
 
 // newServerWithComponents is used by wire to initialize the server components.
@@ -75,18 +77,20 @@ func newServerWithComponents(
 	local *local.Service,
 	metrics *metrics.Service,
 	vinyl *vinyl.Service,
+	recognition *recognition.Service,
 ) *Server {
 	return &Server{
-		Config:  cfg,
-		DB:      db,
-		Mailer:  mail,
-		Push:    pusher,
-		I18n:    i18n,
-		Clock:   clock,
-		Auth:    auth,
-		Local:   local,
-		Metrics: metrics,
-		Vinyl:   vinyl,
+		Config:      cfg,
+		DB:          db,
+		Mailer:      mail,
+		Push:        pusher,
+		I18n:        i18n,
+		Clock:       clock,
+		Auth:        auth,
+		Local:       local,
+		Metrics:     metrics,
+		Vinyl:       vinyl,
+		Recognition: recognition,
 	}
 }
 

@@ -39,6 +39,7 @@ services:
     depends_on:
       - postgres
       - integresql
+      - recognizer
     environment:
       # required: env for main working database, service
       # default for sql-migrate (target development) and psql cli tool
@@ -150,6 +151,11 @@ services:
       - ./api:/api:ro,consistent
     ports:
       - "8081:8081"
+
+  recognizer:
+    image: ghcr.io/farkmi/spinsnitch-recognizer:latest
+    expose:
+      - "8000"
 
 volumes:
   # postgresql: declare a named volume to persist DB data
