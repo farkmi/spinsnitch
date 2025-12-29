@@ -1,15 +1,22 @@
-name: CI/CD - Build and Push to GHCR
+name: Recognizer CI
 
 on:
   push:
     branches:
       - main
+    paths:
+      - 'recognizer/**'
+      - '.github/workflows/recognizer-ci.yml'
     tags:
       - 'v*'
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: ${{ github.repository }}-recognizer
+
+defaults:
+  run:
+    working-directory: recognizer
 
 jobs:
   test:
@@ -31,7 +38,6 @@ jobs:
 
       - name: Run tests
         run: |
-          # Ensure python path is set correctly if needed, or just run pytest
           export PYTHONPATH=$PYTHONPATH:$(pwd)
           python3 -m pytest tests/
 
@@ -67,7 +73,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: recognizer
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

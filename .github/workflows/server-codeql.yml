@@ -1,0 +1,49 @@
+name: "Server CodeQL"
+
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - 'server/**'
+      - '.github/workflows/server-codeql.yml'
+  pull_request:
+    branches: [master, main]
+    paths:
+      - 'server/**'
+      - '.github/workflows/server-codeql.yml'
+  schedule:
+    - cron: '0 19 * * 5'
+
+permissions:
+  security-events: write
+  actions: write
+  contents: read
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['go']
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 2
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v3
+      with:
+        working-directory: server
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3

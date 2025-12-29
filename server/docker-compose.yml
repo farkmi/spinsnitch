@@ -153,7 +153,8 @@ services:
       - "8081:8081"
 
   recognizer:
-    image: ghcr.io/farkmi/spinsnitch-recognizer:latest
+    build:
+      context: ../recognizer
     expose:
       - "8000"
 

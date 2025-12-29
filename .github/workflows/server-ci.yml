@@ -1,24 +1,31 @@
-name: Build & Test
+name: Server CI
 
 on:
   push:
     branches: "**"
-  # pull_request:
-  #   branches: [master]
-  #   types: [opened, reopened] # avoid running twice (on push above), see https://github.com/open-telemetry/opentelemetry-python/issues/1370
+    paths:
+      - 'server/**'
+      - '.github/workflows/server-ci.yml'
+
 env:
-  DOCKER_ENV_FILE: ".github/workflows/docker.env"
+  DOCKER_ENV_FILE: "../.github/workflows/server.env"
+
+defaults:
+  run:
+    working-directory: server
+
 permissions:
   security-events: write
   actions: write
   contents: read
   packages: write
+
 jobs:
   build-test:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:17.4-alpine # should be the same version as used in .drone.yml, .github/workflows, Dockerfile and live
+        image: postgres:17.4-alpine
         env:
           POSTGRES_DB: "development"
           POSTGRES_USER: "dbuser"
@@ -56,7 +63,6 @@ jobs:
       - name: docker run (target builder)
         run: docker run -d --env-file $DOCKER_ENV_FILE --network "${{ job.services.postgres.network }}" --name=builder -it allaboutapps.dev/aw/go-starter:builder-${GITHUB_SHA}
       - name: "build & diff"
-        # Note builder stage now includes .git, thus we rm it again to again diff with the original git workspace
         run: |
           docker exec builder make tidy
           docker exec builder make build
@@ -65,9 +71,6 @@ jobs:
         run: docker exec builder make test
       - name: upload coverage to codecov
         run: docker cp builder:/tmp/coverage.out ./coverage.out && bash <(curl -s https://codecov.io/bash)
-      - name: test-scripts (gsdev, go-starter only)
-        if: ${{ github.repository == 'allaboutapps/go-starter' }} 
-        run: docker exec builder make test-scripts
       - name: info
         run: docker exec builder make info
       - name: "binary: deps"
@@ -80,14 +83,10 @@ jobs:
           docker run --env-file $DOCKER_ENV_FILE --network "${{ job.services.postgres.network }}" allaboutapps.dev/aw/go-starter:app-${GITHUB_SHA} -v
           docker run --env-file $DOCKER_ENV_FILE --network "${{ job.services.postgres.network }}" allaboutapps.dev/aw/go-starter:app-${GITHUB_SHA} env
       - name: upload trivy scan results to GitHub security tab
-        # Currently limited to master because of the following:
-        # Workflows triggered by Dependabot on the "push" event run with read-only access. Uploading Code Scanning results requires write access.
-        # To use Code Scanning with Dependabot, please ensure you are using the "pull_request" event for this workflow and avoid triggering on the "push" event for Dependabot branches.
-        # See https://docs.github.com/en/code-security/secure-coding/configuring-code-scanning#scanning-on-push for more information on how to configure these events.
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }} 
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: 'trivy-results.sarif'
+          sarif_file: 'server/trivy-results.sarif'
       - name: stop container
         if: ${{ always() }}
         run: docker stop builder
@@ -99,7 +98,7 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}
+          images: ghcr.io/${{ github.repository }}-server
           tags: |
             type=ref,event=branch
             type=ref,event=tag
@@ -121,7 +120,7 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: server
           target: app
           push: true
           tags: ${{ steps.meta.outputs.tags }}
@@ -132,4 +131,4 @@ jobs:
       - uses: actions/checkout@v4
       - name: run the main swagger.yml validation
         run: |
-          docker run --rm -v ${{ github.workspace }}:/local swaggerapi/swagger-codegen-cli validate -i /local/api/swagger.yml
+          docker run --rm -v ${{ github.workspace }}/server:/local swaggerapi/swagger-codegen-cli validate -i /local/api/swagger.yml
