@@ -26,6 +26,8 @@ func postRecognizeHandler(s *api.Server) echo.HandlerFunc {
 			"audio/mp4",
 			"audio/aac",
 			"audio/flac",
+			"audio/webm",
+			"video/webm",
 			"application/octet-stream", // some clients send octet-stream
 		}
 
