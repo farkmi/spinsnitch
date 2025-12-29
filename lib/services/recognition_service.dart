@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart' show MultipartFile;
+import 'package:http_parser/http_parser.dart';
 
 import 'dart:io' if (dart.library.html) 'web_dummy.dart' show File;
 
@@ -24,8 +25,8 @@ class RecognitionService {
       throw Exception('Microphone permission not granted');
     }
 
-    const config = RecordConfig(
-      encoder: AudioEncoder.aacLc,
+    final config = RecordConfig(
+      encoder: kIsWeb ? AudioEncoder.opus : AudioEncoder.aacLc,
       bitRate: 128000,
       sampleRate: 44100,
     );
@@ -44,6 +45,7 @@ class RecognitionService {
         'file',
         bytes,
         filename: 'snippet.webm',
+        contentType: MediaType('audio', 'webm'),
       );
 
       return await VinylApi(apiClient).postRecognizeRoute(multipartFile);
