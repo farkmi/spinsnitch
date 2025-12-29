@@ -1,79 +1,75 @@
 import 'dart:async';
-import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
+import 'package:record/record.dart';
+import 'package:spinsnitch_api/api.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
+import 'package:http/http.dart' as http;
+import 'package:http/http.dart' show MultipartFile;
 
-class RecognizedTrack {
-  final String artist;
-  final String title;
-  final DateTime timestamp;
-
-  RecognizedTrack({
-    required this.artist,
-    required this.title,
-    required this.timestamp,
-  });
-
-  @override
-  String toString() => '$artist - $title';
-}
+// Conditional import for File
+import 'dart:io' if (dart.library.html) 'dart:typed_data' show File;
 
 class RecognitionService {
-  static const MethodChannel _channel = MethodChannel('com.farkmi.spinsnitch_mobile/recognition');
-  
-  final _trackController = StreamController<RecognizedTrack>.broadcast();
-  Stream<RecognizedTrack> get trackStream => _trackController.stream;
+  final ApiClient apiClient;
+  final AudioRecorder _recorder = AudioRecorder();
 
-  bool _isListening = false;
+  RecognitionService(this.apiClient);
 
-  RecognitionService() {
-    _channel.setMethodCallHandler(_handleMethodCall);
+  Future<void> dispose() async {
+    await _recorder.dispose();
   }
 
-  Future<dynamic> _handleMethodCall(MethodCall call) async {
-    switch (call.method) {
-      case 'onTrackRecognized':
-        final Map<dynamic, dynamic> args = call.arguments;
-        _onTrackRecognized(args['title'], args['text']);
-        break;
+  Future<RecognitionResult?> recordAndRecognize() async {
+    if (!await _recorder.hasPermission()) {
+      throw Exception('Microphone permission not granted');
     }
-  }
 
-  void _onTrackRecognized(String? title, String? text) {
-    if (text != null && text.contains('•')) {
-      final parts = text.split('•').map((s) => s.trim()).toList();
-      if (parts.length >= 2) {
-        _trackController.add(RecognizedTrack(
-          artist: parts[0],
-          title: parts[1],
-          timestamp: DateTime.now(),
-        ));
-      }
-    } else if (title != null && text != null) {
-      _trackController.add(RecognizedTrack(
-        artist: text,
-        title: title,
-        timestamp: DateTime.now(),
-      ));
+    const config = RecordConfig(
+      encoder: AudioEncoder.aacLc,
+      bitRate: 128000,
+      sampleRate: 44100,
+    );
+
+    if (kIsWeb) {
+      await _recorder.start(config, path: '');
+      await Future.delayed(const Duration(seconds: 5));
+      final path = await _recorder.stop();
+      
+      if (path == null) return null;
+
+      final response = await http.get(Uri.parse(path));
+      final bytes = response.bodyBytes;
+
+      final multipartFile = MultipartFile.fromBytes(
+        'file',
+        bytes,
+        filename: 'snippet.webm',
+      );
+
+      return await VinylApi(apiClient).postRecognizeRoute(multipartFile);
+    } else {
+      final tempDir = await getTemporaryDirectory();
+      final filePath = p.join(tempDir.path, 'snippet_${DateTime.now().millisecondsSinceEpoch}.m4a');
+
+      await _recorder.start(config, path: filePath);
+      await Future.delayed(const Duration(seconds: 5));
+      final stoppedPath = await _recorder.stop();
+
+      if (stoppedPath == null) return null;
+
+      // On native, we use File to read the bytes
+      // The conditional import above ensures this compiles on web (though it won't run)
+      final file = File(stoppedPath);
+      final bytes = await (file as dynamic).readAsBytes();
+
+      final multipartFile = MultipartFile.fromBytes(
+        'file',
+        bytes,
+        filename: 'snippet.m4a',
+      );
+
+      return await VinylApi(apiClient).postRecognizeRoute(multipartFile);
     }
-  }
-
-  Future<bool> hasPermission() async {
-    final bool? hasPermission = await _channel.invokeMethod('hasPermission');
-    return hasPermission ?? false;
-  }
-
-  Future<void> openPermissionSettings() async {
-    await _channel.invokeMethod('openPermissionSettings');
-  }
-
-  Future<void> startListening() async {
-    _isListening = true;
-  }
-
-  void stopListening() {
-    _isListening = false;
-  }
-
-  void dispose() {
-    _trackController.close();
   }
 }

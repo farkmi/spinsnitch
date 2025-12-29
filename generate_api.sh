@@ -5,7 +5,7 @@ echo "Fetching swagger.yml from $SWAGGER_URL..."
 
 mkdir -p packages/spinsnitch_api
 
-npx openapi-generator-cli generate \
+npx @openapitools/openapi-generator-cli generate \
     -i "$SWAGGER_URL" \
     -g dart \
     -o packages/spinsnitch_api \

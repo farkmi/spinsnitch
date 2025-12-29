@@ -222,6 +222,8 @@ class ApiClient {
           return PutUpdatePushTokenPayload.fromJson(value);
         case 'RecentPlaysResponse':
           return RecentPlaysResponse.fromJson(value);
+        case 'RecognitionResult':
+          return RecognitionResult.fromJson(value);
         case 'RegisterResponse':
           return RegisterResponse.fromJson(value);
         case 'TrackPlay':

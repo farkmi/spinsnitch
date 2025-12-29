@@ -5,6 +5,7 @@ import 'package:spinsnitch_api/api.dart';
 import '../auth/auth_provider.dart';
 import '../utils/error_utils.dart';
 import 'vinyl_detail_screen.dart';
+import 'barcode_scanner_screen.dart';
 
 class VinylSearchScreen extends StatefulWidget {
   const VinylSearchScreen({super.key});
@@ -67,6 +68,19 @@ class _VinylSearchScreenState extends State<VinylSearchScreen> {
     }
   }
 
+  Future<void> _scanBarcode() async {
+    final barcode = await Navigator.of(context).push<String>(
+      MaterialPageRoute(
+        builder: (context) => const BarcodeScannerScreen(),
+      ),
+    );
+
+    if (barcode != null && mounted) {
+      _searchController.text = barcode;
+      _performSearch(barcode);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,7 +107,10 @@ class _VinylSearchScreenState extends State<VinylSearchScreen> {
                           _onSearchChanged('');
                         },
                       )
-                    : null,
+                    : IconButton(
+                        icon: const Icon(Icons.qr_code_scanner),
+                        onPressed: _scanBarcode,
+                      ),
               ),
               onChanged: _onSearchChanged,
             ),

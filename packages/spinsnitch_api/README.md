@@ -83,6 +83,7 @@ Class | Method | HTTP request | Description
 *VinylApi* | [**getVinylSearchRoute**](doc//VinylApi.md#getvinylsearchroute) | **GET** /api/v1/vinyls/search | Search for vinyl records on Discogs
 *VinylApi* | [**getVinylsRoute**](doc//VinylApi.md#getvinylsroute) | **GET** /api/v1/vinyls | List all vinyl records
 *VinylApi* | [**postPlayRoute**](doc//VinylApi.md#postplayroute) | **POST** /api/v1/vinyls/play | Register a play
+*VinylApi* | [**postRecognizeRoute**](doc//VinylApi.md#postrecognizeroute) | **POST** /api/v1/vinyls/recognize | Recognize a music snippet
 *VinylApi* | [**postVinylRoute**](doc//VinylApi.md#postvinylroute) | **POST** /api/v1/vinyls | Add a new vinyl record
 *WellKnownApi* | [**getAndroidDigitalAssetLinksRoute**](doc//WellKnownApi.md#getandroiddigitalassetlinksroute) | **GET** /.well-known/assetlinks.json | Android Digital Asset Links
 *WellKnownApi* | [**getAppleAppSiteAssociationRoute**](doc//WellKnownApi.md#getappleappsiteassociationroute) | **GET** /.well-known/apple-app-site-association | Apple App Site Association
@@ -110,6 +111,7 @@ Class | Method | HTTP request | Description
  - [PublicHttpValidationError](doc//PublicHttpValidationError.md)
  - [PutUpdatePushTokenPayload](doc//PutUpdatePushTokenPayload.md)
  - [RecentPlaysResponse](doc//RecentPlaysResponse.md)
+ - [RecognitionResult](doc//RecognitionResult.md)
  - [RegisterResponse](doc//RegisterResponse.md)
  - [TrackPlay](doc//TrackPlay.md)
  - [UserScope](doc//UserScope.md)
