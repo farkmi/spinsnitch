@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'auth/auth_provider.dart';
 import 'services/recognition_provider.dart';
+import 'services/settings_provider.dart';
 import 'config.dart';
 import 'screens/login_screen.dart';
 import 'screens/main_navigation_wrapper.dart';
@@ -18,14 +19,28 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => AuthProvider(apiBaseUrl: AppConfig.apiBaseUrl),
+          create: (_) => SettingsProvider(),
         ),
-        ChangeNotifierProxyProvider<AuthProvider, RecognitionProvider>(
+        ChangeNotifierProxyProvider<SettingsProvider, AuthProvider>(
+          create: (context) => AuthProvider(
+            apiBaseUrl: context.read<SettingsProvider>().customApiBaseUrl.isNotEmpty
+                ? context.read<SettingsProvider>().customApiBaseUrl
+                : AppConfig.apiBaseUrl,
+          ),
+          update: (context, settings, previous) {
+            final url = settings.customApiBaseUrl.isNotEmpty
+                ? settings.customApiBaseUrl
+                : AppConfig.apiBaseUrl;
+            return previous ?? AuthProvider(apiBaseUrl: url);
+          },
+        ),
+        ChangeNotifierProxyProvider2<AuthProvider, SettingsProvider, RecognitionProvider>(
           create: (context) => RecognitionProvider(
             Provider.of<AuthProvider>(context, listen: false).apiClient,
+            Provider.of<SettingsProvider>(context, listen: false),
           ),
-          update: (context, auth, previous) =>
-              previous ?? RecognitionProvider(auth.apiClient),
+          update: (context, auth, settings, previous) =>
+              previous ?? RecognitionProvider(auth.apiClient, settings),
         ),
       ],
       child: MaterialApp(

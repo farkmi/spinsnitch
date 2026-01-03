@@ -1,0 +1,26 @@
+# Home Assistant Dashboard Card (Lovelace)
+# Add this as a manual card in your dashboard
+
+type: conditional
+conditions:
+  - entity: media_player.amplifier
+    state: "on"
+  - entity: media_player.amplifier
+    attribute: source
+    state: "Phono"
+card:
+  type: vertical-stack
+  cards:
+    - type: markdown
+      content: >
+        ## Now Spinning 🍩
+        
+        **Artist:** {{ states('input_text.vinyl_now_playing_artist') }}
+        
+        **Track:** {{ states('input_text.vinyl_now_playing_title') }}
+    - type: button
+      name: "Wrong Side?"
+      icon: mdi:flip-horizontal
+      tap_action:
+        action: call-service
+        service: script.vinyl_flip_side # Example script to handle corrections

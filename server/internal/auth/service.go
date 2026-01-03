@@ -53,6 +53,26 @@ func (s *Service) GetAppUserProfile(ctx context.Context, userID string) (*dto.Ap
 	return mapper.LocalAppUserProfileToDTO(aup).Ptr(), nil
 }
 
+func (s *Service) GetFirstActiveUser(ctx context.Context) (*dto.User, error) {
+	log := util.LogFromContext(ctx)
+
+	user, err := models.Users(
+		models.UserWhere.IsActive.EQ(true),
+		qm.OrderBy(models.UserColumns.CreatedAt),
+	).One(ctx, s.db)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			log.Debug().Err(err).Msg("No active users found")
+			return nil, ErrNotFound
+		}
+
+		log.Err(err).Msg("Failed to get first active user")
+		return nil, err
+	}
+
+	return mapper.LocalUserToDTO(user).Ptr(), nil
+}
+
 func (s *Service) UpdatePassword(ctx context.Context, request dto.UpdatePasswordRequest) (dto.LoginResult, error) {
 	log := util.LogFromContext(ctx).With().Str("userID", request.User.ID).Logger()
 

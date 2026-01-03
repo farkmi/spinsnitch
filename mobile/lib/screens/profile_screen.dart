@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../auth/auth_provider.dart';
+import 'settings_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -24,10 +25,16 @@ class ProfileScreen extends StatelessWidget {
             title: Text('Account'),
             subtitle: Text('Manage your account settings'),
           ),
-          const ListTile(
-            leading: Icon(Icons.settings),
-            title: Text('Settings'),
-            subtitle: Text('App preferences'),
+          ListTile(
+            leading: const Icon(Icons.settings),
+            title: const Text('Settings'),
+            subtitle: const Text('App preferences'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              );
+            },
           ),
           const Divider(),
           ListTile(

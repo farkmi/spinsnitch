@@ -43,7 +43,6 @@ linters:
     - iface
     - importas
     - inamedparam
-    - interfacebloat
     - ireturn
     - makezero
     - mirror

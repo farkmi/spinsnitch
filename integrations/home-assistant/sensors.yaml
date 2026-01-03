@@ -1,0 +1,21 @@
+# Home Assistant Configuration (REST Commands & Helpers)
+# Add these to your configuration.yaml
+
+rest_command:
+  spinsnitch_log_play:
+    url: "http://YOUR_SERVER_IP:8080/api/v1/webhooks/play"
+    method: POST
+    headers:
+      X-Management-Secret: "YOUR_MGMT_SECRET"
+    payload: '{"artist": "{{ artist }}", "title": "{{ title }}"}'
+    content_type: 'application/json'
+
+# Helpers (Input Texts)
+# These can also be created via the UI (Settings -> Devices & Services -> Helpers)
+input_text:
+  vinyl_now_playing_artist:
+    name: "Vinyl Now Playing Artist"
+    icon: mdi:account-music
+  vinyl_now_playing_title:
+    name: "Vinyl Now Playing Title"
+    icon: mdi:music-note

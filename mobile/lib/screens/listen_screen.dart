@@ -22,7 +22,6 @@ class _ListenScreenState extends State<ListenScreen> {
   
   StreamSubscription? _recognitionSubscription;
   RecognitionResult? _lastTrack;
-  bool _isAutoMode = false;
 
   @override
   void initState() {
@@ -106,11 +105,10 @@ class _ListenScreenState extends State<ListenScreen> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(_isAutoMode ? Icons.auto_awesome : Icons.auto_awesome_outlined),
-            color: _isAutoMode ? Colors.teal : null,
+            icon: Icon(recognition.isListening ? Icons.auto_awesome : Icons.auto_awesome_outlined),
+            color: recognition.isListening ? Colors.teal : null,
             onPressed: () async {
-              final recognition = context.read<RecognitionProvider>();
-              if (!_isAutoMode) {
+              if (!recognition.isListening) {
                 await recognition.startListening();
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -119,12 +117,6 @@ class _ListenScreenState extends State<ListenScreen> {
                 }
               } else {
                 await recognition.stopListening();
-              }
-              
-              if (mounted) {
-                setState(() {
-                  _isAutoMode = !_isAutoMode;
-                });
               }
             },
             tooltip: 'Toggle Auto-Recognition',

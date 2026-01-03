@@ -26,13 +26,14 @@ import (
 )
 
 type Router struct {
-	Routes     []*echo.Route
-	Root       *echo.Group
-	Management *echo.Group
-	APIV1Auth  *echo.Group
-	APIV1Push  *echo.Group
-	APIV1Vinyl *echo.Group
-	WellKnown  *echo.Group
+	Routes       []*echo.Route
+	Root         *echo.Group
+	Management   *echo.Group
+	APIV1Auth    *echo.Group
+	APIV1Push    *echo.Group
+	APIV1Vinyl   *echo.Group
+	APIV1Webhook *echo.Group
+	WellKnown    *echo.Group
 }
 
 // Server is a central struct keeping all the dependencies.
@@ -105,6 +106,7 @@ type AuthService interface {
 	DeleteUserAccount(ctx context.Context, request dto.DeleteUserAccountRequest) error
 	ResetPassword(ctx context.Context, request dto.ResetPasswordRequest) (dto.LoginResult, error)
 	UpdatePassword(ctx context.Context, request dto.UpdatePasswordRequest) (dto.LoginResult, error)
+	GetFirstActiveUser(ctx context.Context) (*dto.User, error)
 }
 
 func NewServer(config config.Server) *Server {

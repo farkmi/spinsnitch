@@ -1,0 +1,35 @@
+# Home Assistant Automation for Vinyl Tracking
+# Place this in your automations.yaml or a separate file
+
+alias: "Vinyl: Track Play"
+description: "Identifies and logs vinyl plays when the amplifier is on Phono"
+trigger:
+  - platform: webhook
+    webhook_id: "spinsnitch-song-detected"
+    local_only: true # Recommended for security
+condition:
+  - condition: state
+    entity_id: media_player.amplifier  # Change to your amp entity
+    state: "on"
+  - condition: state
+    entity_id: media_player.amplifier
+    attribute: source
+    state: "Phono"
+action:
+  # 1. Send "Verified Play" to the Go Backend
+  - service: rest_command.spinsnitch_log_play
+    data:
+      artist: "{{ trigger.json.artist }}"
+      title: "{{ trigger.json.title }}"
+
+  # 2. Update helpers for Dashboard UI
+  - service: input_text.set_value
+    target:
+      entity_id: input_text.vinyl_now_playing_artist
+    data:
+      value: "{{ trigger.json.artist }}"
+  - service: input_text.set_value
+    target:
+      entity_id: input_text.vinyl_now_playing_title
+    data:
+      value: "{{ trigger.json.title }}"

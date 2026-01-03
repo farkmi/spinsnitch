@@ -1,13 +1,17 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:spinsnitch_api/api.dart';
+import 'package:http/http.dart' as http;
 import 'background_recognition_service.dart';
 import 'recognition_service.dart';
+import 'settings_provider.dart';
 
 class RecognitionProvider extends ChangeNotifier {
   final ApiClient _apiClient;
   late final RecognitionService _localService;
+  final SettingsProvider _settings;
   
   bool _isListening = false;
   bool _isRecording = false;
@@ -19,7 +23,7 @@ class RecognitionProvider extends ChangeNotifier {
   StreamSubscription? _errorSub;
   Timer? _localLoopTimer;
 
-  RecognitionProvider(this._apiClient) {
+  RecognitionProvider(this._apiClient, this._settings) {
     _localService = RecognitionService(_apiClient);
     _init();
   }
@@ -90,6 +94,7 @@ class RecognitionProvider extends ChangeNotifier {
       await BackgroundRecognitionService.initialize(
         _apiClient.basePath,
         authToken: token,
+        haWebhookUrl: _settings.useHomeAssistant ? _settings.haWebhookUrl : null,
       );
 
       final service = FlutterBackgroundService();
@@ -112,6 +117,10 @@ class RecognitionProvider extends ChangeNotifier {
       _lastResult = result;
       _isRecording = false;
       
+      if (result != null && (result.success ?? false)) {
+        _autoLogIfNeeded(result);
+      }
+      
       final cooldown = (result?.success ?? false) ? 20 : 8;
       notifyListeners();
       
@@ -121,6 +130,49 @@ class RecognitionProvider extends ChangeNotifier {
       _isRecording = false;
       notifyListeners();
       _localLoopTimer = Timer(const Duration(seconds: 10), _runLocalLoop);
+    }
+  }
+
+  Future<void> _autoLogIfNeeded(RecognitionResult result) async {
+    if (!_settings.autoLogEnabled) return;
+
+    if (_settings.useHomeAssistant) {
+      await _sendToHomeAssistant(result);
+    } else {
+      await _sendToBackend(result);
+    }
+  }
+
+  Future<void> _sendToBackend(RecognitionResult result) async {
+    try {
+      final vinylApi = VinylApi(_apiClient);
+      final payload = PlayPayload(
+        artist: result.artist ?? 'Unknown',
+        title: result.title ?? 'Unknown',
+      );
+      await vinylApi.postPlayRoute(payload: payload);
+      debugPrint('Auto-logged to backend: ${result.title}');
+    } catch (e) {
+      debugPrint('Failed to auto-log to backend: $e');
+    }
+  }
+
+  Future<void> _sendToHomeAssistant(RecognitionResult result) async {
+    final url = _settings.haWebhookUrl;
+    if (url.isEmpty) return;
+    try {
+      final uri = Uri.parse(url);
+      await http.post(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'artist': result.artist,
+          'title': result.title,
+        }),
+      );
+      debugPrint('Auto-logged to Home Assistant: ${result.title}');
+    } catch (e) {
+      debugPrint('Failed to send to Home Assistant: $e');
     }
   }
 

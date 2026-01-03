@@ -173,7 +173,7 @@ func (s *Service) AddVinyl(ctx context.Context, discogsID int) (*dto.VinylRecord
 	return dto.VinylRecordFromModel(record), nil
 }
 
-func (s *Service) RegisterPlay(ctx context.Context, userID string, artist, title string) error {
+func (s *Service) RegisterPlay(ctx context.Context, userID string, artist, title string) (*dto.TrackPlay, error) {
 	// 1. Find the track in our DB
 	track, err := models.Tracks(
 		db.InnerJoin(models.TableNames.Tracks, models.TrackColumns.VinylSideID, models.TableNames.VinylSides, models.VinylSideColumns.ID),
@@ -185,9 +185,9 @@ func (s *Service) RegisterPlay(ctx context.Context, userID string, artist, title
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return ErrTrackNotFound
+			return nil, ErrTrackNotFound
 		}
-		return errors.Wrap(err, "failed to find track")
+		return nil, errors.Wrap(err, "failed to find track")
 	}
 
 	// 2. Debouncing check (30 minutes)
@@ -199,17 +199,23 @@ func (s *Service) RegisterPlay(ctx context.Context, userID string, artist, title
 	).One(ctx, s.db)
 
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		return errors.Wrap(err, "failed to check for recent play")
+		return nil, errors.Wrap(err, "failed to check for recent play")
 	}
 
 	if lastPlay != nil && lastPlay.PlayedAt.After(s.clock.Now().Add(-30*time.Minute)) {
 		log.Debug().Msg("Play ignored due to debounce")
-		return nil
+		return &dto.TrackPlay{
+			ID:       lastPlay.ID,
+			Title:    track.Title,
+			Artist:   artist,
+			PlayedAt: lastPlay.PlayedAt,
+		}, nil
 	}
 
-	return db.WithTransaction(ctx, s.db, func(tx boil.ContextExecutor) error {
+	var play *models.TrackPlay
+	err = db.WithTransaction(ctx, s.db, func(tx boil.ContextExecutor) error {
 		// 3. Record Play
-		play := &models.TrackPlay{
+		play = &models.TrackPlay{
 			TrackID:  track.ID,
 			UserID:   userID,
 			PlayedAt: s.clock.Now(),
@@ -229,6 +235,17 @@ func (s *Service) RegisterPlay(ctx context.Context, userID string, artist, title
 
 		return nil
 	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.TrackPlay{
+		ID:       play.ID,
+		Title:    track.Title,
+		Artist:   artist,
+		PlayedAt: play.PlayedAt,
+	}, nil
 }
 
 func (s *Service) GetRecentPlays(ctx context.Context, userID string, limit int) (dto.RecentPlaysResponse, error) {
