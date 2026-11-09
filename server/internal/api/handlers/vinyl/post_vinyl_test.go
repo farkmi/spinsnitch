@@ -23,6 +23,7 @@ func TestPostVinyl(t *testing.T) {
 	discogsServer := httptest.NewServer(http.HandlerFunc(func(respWriter http.ResponseWriter, req *http.Request) {
 		if strings.Contains(req.URL.Path, "/releases/12345") {
 			respWriter.WriteHeader(http.StatusOK)
+			//nolint:gosec // G705: test mock server, the only formatted value is the httptest server's own host
 			_, _ = fmt.Fprintf(respWriter, `{
                 "id": 12345,
                 "title": "Random Access Memories",

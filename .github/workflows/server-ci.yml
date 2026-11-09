@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:17.4-alpine
+        image: postgres:18.6-alpine
         env:
           POSTGRES_DB: "development"
           POSTGRES_USER: "dbuser"
@@ -84,7 +84,7 @@ jobs:
           docker run --env-file $DOCKER_ENV_FILE --network "${{ job.services.postgres.network }}" allaboutapps.dev/aw/go-starter:app-${GITHUB_SHA} env
       - name: upload trivy scan results to GitHub security tab
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }} 
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: 'server/trivy-results.sarif'
       - name: stop container

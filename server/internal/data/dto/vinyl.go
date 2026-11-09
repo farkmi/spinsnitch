@@ -7,7 +7,7 @@ import (
 	"github.com/farkmi/spinsnitch-server/internal/types"
 	"github.com/farkmi/spinsnitch-server/internal/util/publicurl"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/conv"
 )
 
 type VinylRecord struct {
@@ -25,10 +25,10 @@ type VinylRecord struct {
 
 func (v *VinylRecord) ToTypes(baseURL string) *types.VinylRecord {
 	return &types.VinylRecord{
-		ID:         swag.Int64(int64(v.ID)),
-		Title:      swag.String(v.Title),
-		Artist:     swag.String(v.Artist),
-		DiscogsID:  swag.Int64(int64(v.DiscogsID)),
+		ID:         conv.Pointer(int64(v.ID)),
+		Title:      conv.Pointer(v.Title),
+		Artist:     conv.Pointer(v.Artist),
+		DiscogsID:  conv.Pointer(int64(v.DiscogsID)),
 		CreatedAt:  strfmt.DateTime(v.CreatedAt),
 		Year:       int64(v.Year),
 		CoverImage: publicurl.Enrich(baseURL, v.CoverImage),
@@ -53,9 +53,9 @@ func (s VinylRecordSlice) ToSearchTypes(baseURL string) []*types.VinylSearchResu
 	result := make([]*types.VinylSearchResult, len(s))
 	for i, vinyl := range s {
 		result[i] = &types.VinylSearchResult{
-			DiscogsID:  swag.Int64(int64(vinyl.DiscogsID)),
-			Title:      swag.String(vinyl.Title),
-			Artist:     swag.String(vinyl.Artist),
+			DiscogsID:  conv.Pointer(int64(vinyl.DiscogsID)),
+			Title:      conv.Pointer(vinyl.Title),
+			Artist:     conv.Pointer(vinyl.Artist),
 			CoverImage: publicurl.Enrich(baseURL, vinyl.CoverImage),
 			ThumbImage: publicurl.Enrich(baseURL, vinyl.ThumbImage),
 			Year:       int64(vinyl.Year),

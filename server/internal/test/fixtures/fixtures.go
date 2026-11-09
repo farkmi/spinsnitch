@@ -7,6 +7,7 @@ import (
 
 	"github.com/aarondl/null/v8"
 	"github.com/aarondl/sqlboiler/v4/boil"
+	"github.com/farkmi/spinsnitch-server/internal/auth"
 	"github.com/farkmi/spinsnitch-server/internal/models"
 	"github.com/farkmi/spinsnitch-server/internal/util"
 )
@@ -58,7 +59,7 @@ func Fixtures() FixtureMap {
 		IsActive: true,
 		Username: null.StringFrom("user1@example.com"),
 		Password: null.StringFrom(HashedTestUserPassword),
-		Scopes:   []string{"app"},
+		Scopes:   []string{auth.ScopeApp.String()},
 	}
 
 	f.User1AppUserProfile = &models.AppUserProfile{
@@ -82,7 +83,7 @@ func Fixtures() FixtureMap {
 		IsActive: true,
 		Username: null.StringFrom("user2@example.com"),
 		Password: null.StringFrom(HashedTestUserPassword),
-		Scopes:   []string{"app"},
+		Scopes:   []string{auth.ScopeApp.String()},
 	}
 
 	f.User2AppUserProfile = &models.AppUserProfile{
@@ -107,7 +108,7 @@ func Fixtures() FixtureMap {
 		RequiresConfirmation: true,
 		Username:             null.StringFrom("userrequiresconfirmation@example.com"),
 		Password:             null.StringFrom(HashedTestUserPassword),
-		Scopes:               []string{"app"},
+		Scopes:               []string{auth.ScopeApp.String()},
 	}
 
 	f.UserRequiresConfirmationAppUserProfile = &models.AppUserProfile{
@@ -126,7 +127,7 @@ func Fixtures() FixtureMap {
 		IsActive: false,
 		Username: null.StringFrom("userdeactivated@example.com"),
 		Password: null.StringFrom(HashedTestUserPassword),
-		Scopes:   []string{"app"},
+		Scopes:   []string{auth.ScopeApp.String()},
 	}
 
 	f.UserDeactivatedAppUserProfile = &models.AppUserProfile{
