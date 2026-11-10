@@ -34,12 +34,13 @@ func (s *Service) Recognize(ctx context.Context, file io.ReadCloser, filename st
 	}
 
 	transport := httptransport.New(u.Host, u.Path, []string{u.Scheme})
-	c := client.New(transport, strfmt.Default)
+	recognizerClient := client.New(transport, strfmt.Default)
 
-	params := operations.NewRecognizeSongRecognizePostParamsWithContext(ctx)
-	params.File = runtime.NamedReader(filename, file)
+	params := &operations.RecognizeSongRecognizePostParams{
+		File: runtime.NamedReader(filename, file),
+	}
 
-	resp, err := c.Operations.RecognizeSongRecognizePost(params)
+	resp, err := recognizerClient.Operations.RecognizeSongRecognizePostContext(ctx, params)
 	if err != nil {
 		log.Error().Err(err).Msg("Recognition request failed")
 		return nil, fmt.Errorf("recognition request failed: %w", err)

@@ -9,7 +9,7 @@ import (
 	"github.com/farkmi/spinsnitch-server/internal/data/dto"
 	"github.com/farkmi/spinsnitch-server/internal/types"
 	"github.com/farkmi/spinsnitch-server/internal/util"
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/swag/conv"
 	"github.com/labstack/echo/v4"
 )
 
@@ -30,8 +30,8 @@ func putUpdatePushTokenHandler(s *api.Server) echo.HandlerFunc {
 
 		err := s.Local.UpdatePushToken(ctx, dto.UpdatePushTokenRequest{
 			User:          *user,
-			Token:         swag.StringValue(body.NewToken),
-			Provider:      swag.StringValue(body.Provider),
+			Token:         conv.Value(body.NewToken),
+			Provider:      conv.Value(body.Provider),
 			ExistingToken: null.StringFromPtr(body.OldToken),
 		})
 		if err != nil {
