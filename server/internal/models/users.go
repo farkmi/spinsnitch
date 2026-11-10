@@ -141,30 +141,36 @@ var UserWhere = struct {
 var UserRels = struct {
 	AppUserProfile      string
 	AccessTokens        string
+	APIKeys             string
 	ConfirmationTokens  string
 	PasswordResetTokens string
 	PushTokens          string
 	RefreshTokens       string
 	TrackPlays          string
+	VinylRecords        string
 }{
 	AppUserProfile:      "AppUserProfile",
 	AccessTokens:        "AccessTokens",
+	APIKeys:             "APIKeys",
 	ConfirmationTokens:  "ConfirmationTokens",
 	PasswordResetTokens: "PasswordResetTokens",
 	PushTokens:          "PushTokens",
 	RefreshTokens:       "RefreshTokens",
 	TrackPlays:          "TrackPlays",
+	VinylRecords:        "VinylRecords",
 }
 
 // userR is where relationships are stored.
 type userR struct {
 	AppUserProfile      *AppUserProfile         `boil:"AppUserProfile" json:"AppUserProfile" toml:"AppUserProfile" yaml:"AppUserProfile"`
 	AccessTokens        AccessTokenSlice        `boil:"AccessTokens" json:"AccessTokens" toml:"AccessTokens" yaml:"AccessTokens"`
+	APIKeys             APIKeySlice             `boil:"APIKeys" json:"APIKeys" toml:"APIKeys" yaml:"APIKeys"`
 	ConfirmationTokens  ConfirmationTokenSlice  `boil:"ConfirmationTokens" json:"ConfirmationTokens" toml:"ConfirmationTokens" yaml:"ConfirmationTokens"`
 	PasswordResetTokens PasswordResetTokenSlice `boil:"PasswordResetTokens" json:"PasswordResetTokens" toml:"PasswordResetTokens" yaml:"PasswordResetTokens"`
 	PushTokens          PushTokenSlice          `boil:"PushTokens" json:"PushTokens" toml:"PushTokens" yaml:"PushTokens"`
 	RefreshTokens       RefreshTokenSlice       `boil:"RefreshTokens" json:"RefreshTokens" toml:"RefreshTokens" yaml:"RefreshTokens"`
 	TrackPlays          TrackPlaySlice          `boil:"TrackPlays" json:"TrackPlays" toml:"TrackPlays" yaml:"TrackPlays"`
+	VinylRecords        VinylRecordSlice        `boil:"VinylRecords" json:"VinylRecords" toml:"VinylRecords" yaml:"VinylRecords"`
 }
 
 // NewStruct creates a new relationship struct
@@ -202,6 +208,22 @@ func (r *userR) GetAccessTokens() AccessTokenSlice {
 	}
 
 	return r.AccessTokens
+}
+
+func (o *User) GetAPIKeys() APIKeySlice {
+	if o == nil {
+		return nil
+	}
+
+	return o.R.GetAPIKeys()
+}
+
+func (r *userR) GetAPIKeys() APIKeySlice {
+	if r == nil {
+		return nil
+	}
+
+	return r.APIKeys
 }
 
 func (o *User) GetConfirmationTokens() ConfirmationTokenSlice {
@@ -282,6 +304,22 @@ func (r *userR) GetTrackPlays() TrackPlaySlice {
 	}
 
 	return r.TrackPlays
+}
+
+func (o *User) GetVinylRecords() VinylRecordSlice {
+	if o == nil {
+		return nil
+	}
+
+	return o.R.GetVinylRecords()
+}
+
+func (r *userR) GetVinylRecords() VinylRecordSlice {
+	if r == nil {
+		return nil
+	}
+
+	return r.VinylRecords
 }
 
 // userL is where Load methods for each relationship are stored.
@@ -411,6 +449,20 @@ func (o *User) AccessTokens(mods ...qm.QueryMod) accessTokenQuery {
 	return AccessTokens(queryMods...)
 }
 
+// APIKeys retrieves all the api_key's APIKeys with an executor.
+func (o *User) APIKeys(mods ...qm.QueryMod) apiKeyQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("\"api_keys\".\"user_id\"=?", o.ID),
+	)
+
+	return APIKeys(queryMods...)
+}
+
 // ConfirmationTokens retrieves all the confirmation_token's ConfirmationTokens with an executor.
 func (o *User) ConfirmationTokens(mods ...qm.QueryMod) confirmationTokenQuery {
 	var queryMods []qm.QueryMod
@@ -479,6 +531,20 @@ func (o *User) TrackPlays(mods ...qm.QueryMod) trackPlayQuery {
 	)
 
 	return TrackPlays(queryMods...)
+}
+
+// VinylRecords retrieves all the vinyl_record's VinylRecords with an executor.
+func (o *User) VinylRecords(mods ...qm.QueryMod) vinylRecordQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("\"vinyl_records\".\"user_id\"=?", o.ID),
+	)
+
+	return VinylRecords(queryMods...)
 }
 
 // LoadAppUserProfile allows an eager lookup of values, cached into the
@@ -686,6 +752,112 @@ func (userL) LoadAccessTokens(ctx context.Context, e boil.ContextExecutor, singu
 				local.R.AccessTokens = append(local.R.AccessTokens, foreign)
 				if foreign.R == nil {
 					foreign.R = &accessTokenR{}
+				}
+				foreign.R.User = local
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
+// LoadAPIKeys allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (userL) LoadAPIKeys(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
+	var slice []*User
+	var object *User
+
+	if singular {
+		var ok bool
+		object, ok = maybeUser.(*User)
+		if !ok {
+			object = new(User)
+			ok = queries.SetFromEmbeddedStruct(&object, &maybeUser)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", object, maybeUser))
+			}
+		}
+	} else {
+		s, ok := maybeUser.(*[]*User)
+		if ok {
+			slice = *s
+		} else {
+			ok = queries.SetFromEmbeddedStruct(&slice, maybeUser)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", slice, maybeUser))
+			}
+		}
+	}
+
+	args := make(map[interface{}]struct{})
+	if singular {
+		if object.R == nil {
+			object.R = &userR{}
+		}
+		args[object.ID] = struct{}{}
+	} else {
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &userR{}
+			}
+			args[obj.ID] = struct{}{}
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	argsSlice := make([]interface{}, len(args))
+	i := 0
+	for arg := range args {
+		argsSlice[i] = arg
+		i++
+	}
+
+	query := NewQuery(
+		qm.From(`api_keys`),
+		qm.WhereIn(`api_keys.user_id in ?`, argsSlice...),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load api_keys")
+	}
+
+	var resultSlice []*APIKey
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice api_keys")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on api_keys")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for api_keys")
+	}
+
+	if singular {
+		object.R.APIKeys = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &apiKeyR{}
+			}
+			foreign.R.User = object
+		}
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if local.ID == foreign.UserID {
+				local.R.APIKeys = append(local.R.APIKeys, foreign)
+				if foreign.R == nil {
+					foreign.R = &apiKeyR{}
 				}
 				foreign.R.User = local
 				break
@@ -1226,6 +1398,112 @@ func (userL) LoadTrackPlays(ctx context.Context, e boil.ContextExecutor, singula
 	return nil
 }
 
+// LoadVinylRecords allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (userL) LoadVinylRecords(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
+	var slice []*User
+	var object *User
+
+	if singular {
+		var ok bool
+		object, ok = maybeUser.(*User)
+		if !ok {
+			object = new(User)
+			ok = queries.SetFromEmbeddedStruct(&object, &maybeUser)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", object, maybeUser))
+			}
+		}
+	} else {
+		s, ok := maybeUser.(*[]*User)
+		if ok {
+			slice = *s
+		} else {
+			ok = queries.SetFromEmbeddedStruct(&slice, maybeUser)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", slice, maybeUser))
+			}
+		}
+	}
+
+	args := make(map[interface{}]struct{})
+	if singular {
+		if object.R == nil {
+			object.R = &userR{}
+		}
+		args[object.ID] = struct{}{}
+	} else {
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &userR{}
+			}
+			args[obj.ID] = struct{}{}
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	argsSlice := make([]interface{}, len(args))
+	i := 0
+	for arg := range args {
+		argsSlice[i] = arg
+		i++
+	}
+
+	query := NewQuery(
+		qm.From(`vinyl_records`),
+		qm.WhereIn(`vinyl_records.user_id in ?`, argsSlice...),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load vinyl_records")
+	}
+
+	var resultSlice []*VinylRecord
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice vinyl_records")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on vinyl_records")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for vinyl_records")
+	}
+
+	if singular {
+		object.R.VinylRecords = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &vinylRecordR{}
+			}
+			foreign.R.User = object
+		}
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if local.ID == foreign.UserID {
+				local.R.VinylRecords = append(local.R.VinylRecords, foreign)
+				if foreign.R == nil {
+					foreign.R = &vinylRecordR{}
+				}
+				foreign.R.User = local
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
 // SetAppUserProfile of the user to the related item.
 // Sets o.R.AppUserProfile to related.
 // Adds o to related.R.User.
@@ -1320,6 +1598,59 @@ func (o *User) AddAccessTokens(ctx context.Context, exec boil.ContextExecutor, i
 	for _, rel := range related {
 		if rel.R == nil {
 			rel.R = &accessTokenR{
+				User: o,
+			}
+		} else {
+			rel.R.User = o
+		}
+	}
+	return nil
+}
+
+// AddAPIKeys adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.APIKeys.
+// Sets related.R.User appropriately.
+func (o *User) AddAPIKeys(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*APIKey) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			rel.UserID = o.ID
+			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE \"api_keys\" SET %s WHERE %s",
+				strmangle.SetParamNames("\"", "\"", 1, []string{"user_id"}),
+				strmangle.WhereClause("\"", "\"", 2, apiKeyPrimaryKeyColumns),
+			)
+			values := []interface{}{o.ID, rel.ID}
+
+			if boil.IsDebug(ctx) {
+				writer := boil.DebugWriterFrom(ctx)
+				fmt.Fprintln(writer, updateQuery)
+				fmt.Fprintln(writer, values)
+			}
+			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			rel.UserID = o.ID
+		}
+	}
+
+	if o.R == nil {
+		o.R = &userR{
+			APIKeys: related,
+		}
+	} else {
+		o.R.APIKeys = append(o.R.APIKeys, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &apiKeyR{
 				User: o,
 			}
 		} else {
@@ -1585,6 +1916,59 @@ func (o *User) AddTrackPlays(ctx context.Context, exec boil.ContextExecutor, ins
 	for _, rel := range related {
 		if rel.R == nil {
 			rel.R = &trackPlayR{
+				User: o,
+			}
+		} else {
+			rel.R.User = o
+		}
+	}
+	return nil
+}
+
+// AddVinylRecords adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.VinylRecords.
+// Sets related.R.User appropriately.
+func (o *User) AddVinylRecords(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*VinylRecord) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			rel.UserID = o.ID
+			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE \"vinyl_records\" SET %s WHERE %s",
+				strmangle.SetParamNames("\"", "\"", 1, []string{"user_id"}),
+				strmangle.WhereClause("\"", "\"", 2, vinylRecordPrimaryKeyColumns),
+			)
+			values := []interface{}{o.ID, rel.ID}
+
+			if boil.IsDebug(ctx) {
+				writer := boil.DebugWriterFrom(ctx)
+				fmt.Fprintln(writer, updateQuery)
+				fmt.Fprintln(writer, values)
+			}
+			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			rel.UserID = o.ID
+		}
+	}
+
+	if o.R == nil {
+		o.R = &userR{
+			VinylRecords: related,
+		}
+	} else {
+		o.R.VinylRecords = append(o.R.VinylRecords, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &vinylRecordR{
 				User: o,
 			}
 		} else {

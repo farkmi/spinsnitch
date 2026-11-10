@@ -116,3 +116,59 @@ definitions:
         type: array
         items:
           $ref: "#/definitions/TrackPlay"
+
+  PlayResult:
+    type: object
+    required:
+      - playId
+      - title
+      - artist
+      - recordTitle
+      - sideLabel
+      - position
+      - playedAt
+      - debounced
+    properties:
+      playId:
+        type: integer
+      title:
+        type: string
+      artist:
+        type: string
+      recordTitle:
+        type: string
+      sideLabel:
+        type: string
+      position:
+        type: string
+      coverImage:
+        type: string
+      playedAt:
+        type: string
+        format: date-time
+      debounced:
+        type: boolean
+        description: True if the track was already played within the debounce window, so no new play was recorded and playId refers to the earlier play
+
+  RecognizeAndPlayResult:
+    type: object
+    required:
+      - recognized
+      - matched
+    properties:
+      recognized:
+        type: boolean
+        description: Whether the audio was identified at all
+      matched:
+        type: boolean
+        description: Whether the identified track is in the collection (and a play was registered)
+      recognizedArtist:
+        type: string
+      recognizedTitle:
+        type: string
+      shazamUrl:
+        type: string
+      coverArt:
+        type: string
+      play:
+        $ref: "#/definitions/PlayResult"

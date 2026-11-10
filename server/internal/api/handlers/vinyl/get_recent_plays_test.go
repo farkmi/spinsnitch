@@ -23,6 +23,7 @@ func TestRecentPlaysAndDebouncing(t *testing.T) {
 		// 1. Setup a vinyl record and tracks in the database
 		ctx := t.Context()
 		record := &models.VinylRecord{
+			UserID:    fix.User1.ID,
 			Title:     "Test Vinyl",
 			Artist:    "Test Artist",
 			DiscogsID: 12345,

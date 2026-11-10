@@ -11,6 +11,7 @@ import (
 	"github.com/farkmi/spinsnitch-server/internal/discogs"
 	"github.com/farkmi/spinsnitch-server/internal/test"
 	"github.com/farkmi/spinsnitch-server/internal/test/fixtures"
+	"github.com/farkmi/spinsnitch-server/internal/types"
 	vinyl_service "github.com/farkmi/spinsnitch-server/internal/vinyl"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -77,6 +78,16 @@ func TestIntegrationVinyl(t *testing.T) {
 		require.Equal(t, http.StatusOK, rec.Code)
 		assert.Contains(t, rec.Body.String(), "Random Access Memories")
 		assert.Contains(t, rec.Body.String(), "Daft Punk")
+
+		var added types.VinylRecord
+		test.ParseResponseAndValidate(t, rec, &added)
+
+		// Adding a release that is already in the collection returns the existing record.
+		recAgain := test.PerformRequest(t, s, http.MethodPost, "/api/v1/vinyls", payload, authHeaders)
+		require.Equal(t, http.StatusOK, recAgain.Code)
+		var addedAgain types.VinylRecord
+		test.ParseResponseAndValidate(t, recAgain, &addedAgain)
+		assert.Equal(t, *added.ID, *addedAgain.ID)
 
 		// 4. Test RegisterPlay (POST /api/v1/vinyls/play)
 		playPayload := test.GenericPayload{"artist": "Daft Punk", "title": "Get Lucky"}

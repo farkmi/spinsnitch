@@ -148,3 +148,31 @@ func (r *RecentPlaysResponse) ToTypes() *types.RecentPlaysResponse {
 		Plays: plays,
 	}
 }
+
+// PlayResult describes the play registered for a matched track, or the earlier play it was
+// debounced against.
+type PlayResult struct {
+	PlayID      int
+	Title       string
+	Artist      string
+	RecordTitle string
+	SideLabel   string
+	Position    string
+	CoverImage  string
+	PlayedAt    time.Time
+	Debounced   bool
+}
+
+func (p *PlayResult) ToTypes(baseURL string) *types.PlayResult {
+	return &types.PlayResult{
+		PlayID:      conv.Pointer(int64(p.PlayID)),
+		Title:       conv.Pointer(p.Title),
+		Artist:      conv.Pointer(p.Artist),
+		RecordTitle: conv.Pointer(p.RecordTitle),
+		SideLabel:   conv.Pointer(p.SideLabel),
+		Position:    conv.Pointer(p.Position),
+		CoverImage:  publicurl.Enrich(baseURL, p.CoverImage),
+		PlayedAt:    conv.Pointer(strfmt.DateTime(p.PlayedAt)),
+		Debounced:   conv.Pointer(p.Debounced),
+	}
+}

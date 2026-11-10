@@ -1,0 +1,51 @@
+definitions:
+  ApiKey:
+    type: object
+    required:
+      - id
+      - name
+      - keyPrefix
+      - createdAt
+    properties:
+      id:
+        type: string
+        format: uuid4
+        example: 4a5b8d1e-6c1f-4b8a-9d2e-3f7c6a1b2c3d
+      name:
+        type: string
+        description: Label to recognise the key by, e.g. the integration using it
+        example: Home Assistant
+      keyPrefix:
+        type: string
+        description: First characters of the key, to tell keys apart without revealing them
+        example: ssk_Ab3dE
+      lastUsedAt:
+        type: string
+        format: date-time
+      createdAt:
+        type: string
+        format: date-time
+
+  CreatedApiKey:
+    type: object
+    required:
+      - apiKey
+      - key
+    properties:
+      apiKey:
+        $ref: "#/definitions/ApiKey"
+      key:
+        type: string
+        description: The full key. It is only returned once and cannot be retrieved later.
+        example: ssk_Ab3dEfGhIjKlMnOpQrStUvWxYz0123456789AbCdEfG
+
+  PostApiKeyPayload:
+    type: object
+    required:
+      - name
+    properties:
+      name:
+        type: string
+        minLength: 1
+        maxLength: 100
+        example: Home Assistant

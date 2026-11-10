@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/farkmi/spinsnitch-server/internal/api"
+	"github.com/farkmi/spinsnitch-server/internal/auth"
 	"github.com/farkmi/spinsnitch-server/internal/types"
 	"github.com/farkmi/spinsnitch-server/internal/util"
 	"github.com/farkmi/spinsnitch-server/internal/vinyl"
@@ -24,13 +25,7 @@ func postWebhookPlayHandler(s *api.Server) echo.HandlerFunc {
 			return err
 		}
 
-		// Pick the first active user to log the play for
-		user, err := s.Auth.GetFirstActiveUser(ctx)
-		if err != nil {
-			return err
-		}
-
-		_, err = s.Vinyl.RegisterPlay(ctx, user.ID, conv.Value(body.Artist), conv.Value(body.Title))
+		play, err := s.Vinyl.RegisterPlay(ctx, auth.UserFromContext(ctx).ID, conv.Value(body.Artist), conv.Value(body.Title))
 		if err != nil {
 			if errors.Is(err, vinyl.ErrTrackNotFound) {
 				return echo.NewHTTPError(http.StatusNotFound, err.Error())
@@ -38,6 +33,6 @@ func postWebhookPlayHandler(s *api.Server) echo.HandlerFunc {
 			return err
 		}
 
-		return c.NoContent(http.StatusNoContent)
+		return util.ValidateAndReturn(c, http.StatusOK, play.ToTypes(s.Config.Echo.BaseURL))
 	}
 }

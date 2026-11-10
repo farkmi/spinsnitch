@@ -3,6 +3,7 @@ package api
 import (
 	"database/sql"
 	"fmt"
+	"github.com/farkmi/spinsnitch-server/internal/apikey"
 	"testing"
 	"time"
 
@@ -89,6 +90,10 @@ func NewVinylService(db *sql.DB, discogsClient *discogs.Client, clock time2.Cloc
 
 func NewRecognitionService(config config.Server) *recognition.Service {
 	return recognition.NewService(config.Recognizer)
+}
+
+func NewAPIKeyService(db *sql.DB, clock time2.Clock) *apikey.Service {
+	return apikey.NewService(db, clock)
 }
 
 func NoTest() []*testing.T {

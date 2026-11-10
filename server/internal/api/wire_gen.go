@@ -12,6 +12,7 @@ import (
 	"github.com/farkmi/spinsnitch-server/internal/config"
 	"github.com/farkmi/spinsnitch-server/internal/data/local"
 	"github.com/farkmi/spinsnitch-server/internal/metrics"
+	"github.com/farkmi/spinsnitch-server/internal/recognition"
 	"github.com/google/wire"
 	"testing"
 )
@@ -51,7 +52,8 @@ func InitNewServer(server config.Server) (*Server, error) {
 	client := NewDiscogsClient(server)
 	vinylService := NewVinylService(db, client, clock)
 	recognitionService := NewRecognitionService(server)
-	apiServer := newServerWithComponents(server, db, mailer, service, i18nService, clock, authService, localService, metricsService, vinylService, recognitionService)
+	apikeyService := NewAPIKeyService(db, clock)
+	apiServer := newServerWithComponents(server, db, mailer, service, i18nService, clock, authService, localService, metricsService, vinylService, recognitionService, apikeyService)
 	return apiServer, nil
 }
 
@@ -80,7 +82,8 @@ func InitNewServerWithDB(server config.Server, db *sql.DB, t ...*testing.T) (*Se
 	client := NewDiscogsClient(server)
 	vinylService := NewVinylService(db, client, clock)
 	recognitionService := NewRecognitionService(server)
-	apiServer := newServerWithComponents(server, db, mailer, service, i18nService, clock, authService, localService, metricsService, vinylService, recognitionService)
+	apikeyService := NewAPIKeyService(db, clock)
+	apiServer := newServerWithComponents(server, db, mailer, service, i18nService, clock, authService, localService, metricsService, vinylService, recognitionService, apikeyService)
 	return apiServer, nil
 }
 
@@ -95,7 +98,7 @@ var serviceSet = wire.NewSet(
 	authServiceSet, local.NewService, metrics.New, NewClock,
 	NewDiscogsClient,
 	NewVinylService,
-	NewRecognitionService,
+	NewRecognitionService, wire.Bind(new(Recognizer), new(*recognition.Service)), NewAPIKeyService,
 )
 
 var authServiceSet = wire.NewSet(

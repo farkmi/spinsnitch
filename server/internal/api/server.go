@@ -5,9 +5,11 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/dropbox/godropbox/time2"
+	"github.com/farkmi/spinsnitch-server/internal/apikey"
 	"github.com/farkmi/spinsnitch-server/internal/config"
 	"github.com/farkmi/spinsnitch-server/internal/data/dto"
 	"github.com/farkmi/spinsnitch-server/internal/data/local"
@@ -15,7 +17,6 @@ import (
 	"github.com/farkmi/spinsnitch-server/internal/mailer"
 	"github.com/farkmi/spinsnitch-server/internal/metrics"
 	"github.com/farkmi/spinsnitch-server/internal/push"
-	"github.com/farkmi/spinsnitch-server/internal/recognition"
 	"github.com/farkmi/spinsnitch-server/internal/util"
 	"github.com/farkmi/spinsnitch-server/internal/vinyl"
 	"github.com/labstack/echo/v4"
@@ -30,6 +31,7 @@ type Router struct {
 	Root         *echo.Group
 	Management   *echo.Group
 	APIV1Auth    *echo.Group
+	APIV1APIKeys *echo.Group
 	APIV1Push    *echo.Group
 	APIV1Vinyl   *echo.Group
 	APIV1Webhook *echo.Group
@@ -61,7 +63,8 @@ type Server struct {
 	Local       *local.Service
 	Metrics     *metrics.Service
 	Vinyl       *vinyl.Service
-	Recognition *recognition.Service
+	Recognition Recognizer
+	APIKeys     *apikey.Service
 }
 
 // newServerWithComponents is used by wire to initialize the server components.
@@ -78,7 +81,8 @@ func newServerWithComponents(
 	local *local.Service,
 	metrics *metrics.Service,
 	vinyl *vinyl.Service,
-	recognition *recognition.Service,
+	recognition Recognizer,
+	apiKeys *apikey.Service,
 ) *Server {
 	return &Server{
 		Config:      cfg,
@@ -92,6 +96,7 @@ func newServerWithComponents(
 		Metrics:     metrics,
 		Vinyl:       vinyl,
 		Recognition: recognition,
+		APIKeys:     apiKeys,
 	}
 }
 
@@ -106,7 +111,11 @@ type AuthService interface {
 	DeleteUserAccount(ctx context.Context, request dto.DeleteUserAccountRequest) error
 	ResetPassword(ctx context.Context, request dto.ResetPasswordRequest) (dto.LoginResult, error)
 	UpdatePassword(ctx context.Context, request dto.UpdatePasswordRequest) (dto.LoginResult, error)
-	GetFirstActiveUser(ctx context.Context) (*dto.User, error)
+}
+
+// Recognizer identifies music in an audio clip.
+type Recognizer interface {
+	Recognize(ctx context.Context, file io.ReadCloser, filename string) (*dto.RecognitionResult, error)
 }
 
 func NewServer(config config.Server) *Server {
