@@ -6,7 +6,9 @@ rest_command:
     url: "http://YOUR_SERVER_IP:8080/api/v1/webhooks/play"
     method: POST
     headers:
-      X-Management-Secret: "YOUR_MGMT_SECRET"
+      # Per-user API key: create one with POST /api/v1/api-keys and store it in secrets.yaml
+      # as `spinsnitch_api_key: "Bearer ssk_..."`.
+      Authorization: !secret spinsnitch_api_key
     payload: '{"artist": "{{ artist }}", "title": "{{ title }}"}'
     content_type: 'application/json'
 

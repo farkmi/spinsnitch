@@ -1,0 +1,61 @@
+swagger: "2.0"
+parameters:
+  apiKeyIdParam:
+    type: string
+    format: uuid4
+    in: path
+    name: id
+    description: ID of the API key
+    required: true
+paths:
+  /api/v1/api-keys:
+    get:
+      security:
+        - Bearer: []
+      summary: List the user's API keys
+      tags:
+        - api-keys
+      operationId: GetApiKeysRoute
+      responses:
+        "200":
+          description: API keys of the user (without the keys themselves)
+          schema:
+            type: array
+            items:
+              $ref: ../definitions/api_keys.yml#/definitions/ApiKey
+    post:
+      security:
+        - Bearer: []
+      summary: Create an API key
+      description: Creates a long-lived key for integrations such as Home Assistant. The full key is only returned in this response.
+      tags:
+        - api-keys
+      operationId: PostApiKeyRoute
+      parameters:
+        - name: Payload
+          in: body
+          schema:
+            $ref: ../definitions/api_keys.yml#/definitions/PostApiKeyPayload
+      responses:
+        "201":
+          description: Created API key
+          schema:
+            $ref: ../definitions/api_keys.yml#/definitions/CreatedApiKey
+        "400":
+          description: Bad Request
+
+  /api/v1/api-keys/{id}:
+    delete:
+      security:
+        - Bearer: []
+      summary: Revoke an API key
+      tags:
+        - api-keys
+      operationId: DeleteApiKeyRoute
+      parameters:
+        - $ref: "#/parameters/apiKeyIdParam"
+      responses:
+        "204":
+          description: API key revoked
+        "404":
+          description: API key not found

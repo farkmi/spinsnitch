@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/farkmi/spinsnitch-server/internal/api"
+	"github.com/farkmi/spinsnitch-server/internal/auth"
 	"github.com/farkmi/spinsnitch-server/internal/types"
 	"github.com/farkmi/spinsnitch-server/internal/util"
 	"github.com/go-openapi/swag/conv"
@@ -22,7 +23,7 @@ func postVinylHandler(s *api.Server) echo.HandlerFunc {
 			return err
 		}
 
-		record, err := s.Vinyl.AddVinyl(ctx, int(conv.Value(body.DiscogsID)))
+		record, err := s.Vinyl.AddVinyl(ctx, auth.UserFromContext(ctx).ID, int(conv.Value(body.DiscogsID)))
 		if err != nil {
 			return err
 		}

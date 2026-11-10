@@ -5,6 +5,7 @@ package models
 
 var TableNames = struct {
 	AccessTokens        string
+	APIKeys             string
 	AppUserProfiles     string
 	ConfirmationTokens  string
 	PasswordResetTokens string
@@ -17,6 +18,7 @@ var TableNames = struct {
 	VinylSides          string
 }{
 	AccessTokens:        "access_tokens",
+	APIKeys:             "api_keys",
 	AppUserProfiles:     "app_user_profiles",
 	ConfirmationTokens:  "confirmation_tokens",
 	PasswordResetTokens: "password_reset_tokens",

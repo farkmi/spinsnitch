@@ -36,6 +36,7 @@ type VinylRecord struct {
 	ThumbImage null.String       `boil:"thumb_image" json:"thumb_image,omitempty" toml:"thumb_image" yaml:"thumb_image,omitempty"`
 	Genres     types.StringArray `boil:"genres" json:"genres,omitempty" toml:"genres" yaml:"genres,omitempty"`
 	Styles     types.StringArray `boil:"styles" json:"styles,omitempty" toml:"styles" yaml:"styles,omitempty"`
+	UserID     string            `boil:"user_id" json:"user_id" toml:"user_id" yaml:"user_id"`
 
 	R *vinylRecordR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L vinylRecordL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -53,6 +54,7 @@ var VinylRecordColumns = struct {
 	ThumbImage string
 	Genres     string
 	Styles     string
+	UserID     string
 }{
 	ID:         "id",
 	Title:      "title",
@@ -65,6 +67,7 @@ var VinylRecordColumns = struct {
 	ThumbImage: "thumb_image",
 	Genres:     "genres",
 	Styles:     "styles",
+	UserID:     "user_id",
 }
 
 var VinylRecordTableColumns = struct {
@@ -79,6 +82,7 @@ var VinylRecordTableColumns = struct {
 	ThumbImage string
 	Genres     string
 	Styles     string
+	UserID     string
 }{
 	ID:         "vinyl_records.id",
 	Title:      "vinyl_records.title",
@@ -91,6 +95,7 @@ var VinylRecordTableColumns = struct {
 	ThumbImage: "vinyl_records.thumb_image",
 	Genres:     "vinyl_records.genres",
 	Styles:     "vinyl_records.styles",
+	UserID:     "vinyl_records.user_id",
 }
 
 // Generated where
@@ -150,6 +155,7 @@ var VinylRecordWhere = struct {
 	ThumbImage whereHelpernull_String
 	Genres     whereHelpertypes_StringArray
 	Styles     whereHelpertypes_StringArray
+	UserID     whereHelperstring
 }{
 	ID:         whereHelperint{field: "\"vinyl_records\".\"id\""},
 	Title:      whereHelperstring{field: "\"vinyl_records\".\"title\""},
@@ -162,23 +168,43 @@ var VinylRecordWhere = struct {
 	ThumbImage: whereHelpernull_String{field: "\"vinyl_records\".\"thumb_image\""},
 	Genres:     whereHelpertypes_StringArray{field: "\"vinyl_records\".\"genres\""},
 	Styles:     whereHelpertypes_StringArray{field: "\"vinyl_records\".\"styles\""},
+	UserID:     whereHelperstring{field: "\"vinyl_records\".\"user_id\""},
 }
 
 // VinylRecordRels is where relationship names are stored.
 var VinylRecordRels = struct {
+	User       string
 	VinylSides string
 }{
+	User:       "User",
 	VinylSides: "VinylSides",
 }
 
 // vinylRecordR is where relationships are stored.
 type vinylRecordR struct {
+	User       *User          `boil:"User" json:"User" toml:"User" yaml:"User"`
 	VinylSides VinylSideSlice `boil:"VinylSides" json:"VinylSides" toml:"VinylSides" yaml:"VinylSides"`
 }
 
 // NewStruct creates a new relationship struct
 func (*vinylRecordR) NewStruct() *vinylRecordR {
 	return &vinylRecordR{}
+}
+
+func (o *VinylRecord) GetUser() *User {
+	if o == nil {
+		return nil
+	}
+
+	return o.R.GetUser()
+}
+
+func (r *vinylRecordR) GetUser() *User {
+	if r == nil {
+		return nil
+	}
+
+	return r.User
 }
 
 func (o *VinylRecord) GetVinylSides() VinylSideSlice {
@@ -201,8 +227,8 @@ func (r *vinylRecordR) GetVinylSides() VinylSideSlice {
 type vinylRecordL struct{}
 
 var (
-	vinylRecordAllColumns            = []string{"id", "title", "artist", "discogs_id", "created_at", "updated_at", "year", "cover_image", "thumb_image", "genres", "styles"}
-	vinylRecordColumnsWithoutDefault = []string{"title", "artist", "discogs_id"}
+	vinylRecordAllColumns            = []string{"id", "title", "artist", "discogs_id", "created_at", "updated_at", "year", "cover_image", "thumb_image", "genres", "styles", "user_id"}
+	vinylRecordColumnsWithoutDefault = []string{"title", "artist", "discogs_id", "user_id"}
 	vinylRecordColumnsWithDefault    = []string{"id", "created_at", "updated_at", "year", "cover_image", "thumb_image", "genres", "styles"}
 	vinylRecordPrimaryKeyColumns     = []string{"id"}
 	vinylRecordGeneratedColumns      = []string{}
@@ -299,6 +325,17 @@ func (q vinylRecordQuery) Exists(ctx context.Context, exec boil.ContextExecutor)
 	return count > 0, nil
 }
 
+// User pointed to by the foreign key.
+func (o *VinylRecord) User(mods ...qm.QueryMod) userQuery {
+	queryMods := []qm.QueryMod{
+		qm.Where("\"id\" = ?", o.UserID),
+	}
+
+	queryMods = append(queryMods, mods...)
+
+	return Users(queryMods...)
+}
+
 // VinylSides retrieves all the vinyl_side's VinylSides with an executor.
 func (o *VinylRecord) VinylSides(mods ...qm.QueryMod) vinylSideQuery {
 	var queryMods []qm.QueryMod
@@ -311,6 +348,118 @@ func (o *VinylRecord) VinylSides(mods ...qm.QueryMod) vinylSideQuery {
 	)
 
 	return VinylSides(queryMods...)
+}
+
+// LoadUser allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for an N-1 relationship.
+func (vinylRecordL) LoadUser(ctx context.Context, e boil.ContextExecutor, singular bool, maybeVinylRecord interface{}, mods queries.Applicator) error {
+	var slice []*VinylRecord
+	var object *VinylRecord
+
+	if singular {
+		var ok bool
+		object, ok = maybeVinylRecord.(*VinylRecord)
+		if !ok {
+			object = new(VinylRecord)
+			ok = queries.SetFromEmbeddedStruct(&object, &maybeVinylRecord)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", object, maybeVinylRecord))
+			}
+		}
+	} else {
+		s, ok := maybeVinylRecord.(*[]*VinylRecord)
+		if ok {
+			slice = *s
+		} else {
+			ok = queries.SetFromEmbeddedStruct(&slice, maybeVinylRecord)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", slice, maybeVinylRecord))
+			}
+		}
+	}
+
+	args := make(map[interface{}]struct{})
+	if singular {
+		if object.R == nil {
+			object.R = &vinylRecordR{}
+		}
+		args[object.UserID] = struct{}{}
+
+	} else {
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &vinylRecordR{}
+			}
+
+			args[obj.UserID] = struct{}{}
+
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	argsSlice := make([]interface{}, len(args))
+	i := 0
+	for arg := range args {
+		argsSlice[i] = arg
+		i++
+	}
+
+	query := NewQuery(
+		qm.From(`users`),
+		qm.WhereIn(`users.id in ?`, argsSlice...),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load User")
+	}
+
+	var resultSlice []*User
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice User")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results of eager load for users")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for users")
+	}
+
+	if len(resultSlice) == 0 {
+		return nil
+	}
+
+	if singular {
+		foreign := resultSlice[0]
+		object.R.User = foreign
+		if foreign.R == nil {
+			foreign.R = &userR{}
+		}
+		foreign.R.VinylRecords = append(foreign.R.VinylRecords, object)
+		return nil
+	}
+
+	for _, local := range slice {
+		for _, foreign := range resultSlice {
+			if local.UserID == foreign.ID {
+				local.R.User = foreign
+				if foreign.R == nil {
+					foreign.R = &userR{}
+				}
+				foreign.R.VinylRecords = append(foreign.R.VinylRecords, local)
+				break
+			}
+		}
+	}
+
+	return nil
 }
 
 // LoadVinylSides allows an eager lookup of values, cached into the
@@ -414,6 +563,53 @@ func (vinylRecordL) LoadVinylSides(ctx context.Context, e boil.ContextExecutor, 
 				break
 			}
 		}
+	}
+
+	return nil
+}
+
+// SetUser of the vinylRecord to the related item.
+// Sets o.R.User to related.
+// Adds o to related.R.VinylRecords.
+func (o *VinylRecord) SetUser(ctx context.Context, exec boil.ContextExecutor, insert bool, related *User) error {
+	var err error
+	if insert {
+		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
+			return errors.Wrap(err, "failed to insert into foreign table")
+		}
+	}
+
+	updateQuery := fmt.Sprintf(
+		"UPDATE \"vinyl_records\" SET %s WHERE %s",
+		strmangle.SetParamNames("\"", "\"", 1, []string{"user_id"}),
+		strmangle.WhereClause("\"", "\"", 2, vinylRecordPrimaryKeyColumns),
+	)
+	values := []interface{}{related.ID, o.ID}
+
+	if boil.IsDebug(ctx) {
+		writer := boil.DebugWriterFrom(ctx)
+		fmt.Fprintln(writer, updateQuery)
+		fmt.Fprintln(writer, values)
+	}
+	if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+		return errors.Wrap(err, "failed to update local table")
+	}
+
+	o.UserID = related.ID
+	if o.R == nil {
+		o.R = &vinylRecordR{
+			User: related,
+		}
+	} else {
+		o.R.User = related
+	}
+
+	if related.R == nil {
+		related.R = &userR{
+			VinylRecords: VinylRecordSlice{o},
+		}
+	} else {
+		related.R.VinylRecords = append(related.R.VinylRecords, o)
 	}
 
 	return nil

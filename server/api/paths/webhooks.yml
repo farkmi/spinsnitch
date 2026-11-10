@@ -1,0 +1,50 @@
+swagger: "2.0"
+paths:
+  /api/v1/webhooks/play:
+    post:
+      security:
+        - ApiKey: []
+      summary: Register a play (integrations)
+      description: Registers a play of a track in the API key owner's collection, matched by artist and title.
+      tags:
+        - webhooks
+      operationId: PostWebhookPlayRoute
+      parameters:
+        - name: Payload
+          in: body
+          schema:
+            $ref: ../definitions/vinyl.yml#/definitions/PlayPayload
+      responses:
+        "200":
+          description: Play registered (or debounced)
+          schema:
+            $ref: ../definitions/vinyl.yml#/definitions/PlayResult
+        "404":
+          description: Track not found in the collection
+
+  /api/v1/webhooks/recognize:
+    post:
+      security:
+        - ApiKey: []
+      summary: Recognize an audio clip and register the play (integrations)
+      description: |-
+        Identifies the music in an audio clip and, if it is a track in the API key owner's
+        collection, registers a play. Unrecognised clips and tracks outside the collection are
+        not errors; the response says how far it got.
+      tags:
+        - webhooks
+      operationId: PostWebhookRecognizeRoute
+      consumes:
+        - multipart/form-data
+      parameters:
+        - name: file
+          in: formData
+          required: true
+          type: file
+      responses:
+        "200":
+          description: Recognition and play result
+          schema:
+            $ref: ../definitions/vinyl.yml#/definitions/RecognizeAndPlayResult
+        "400":
+          description: Bad Request

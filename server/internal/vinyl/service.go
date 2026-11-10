@@ -33,6 +33,7 @@ const (
 	sideRegexMatches = 2
 	hoursPerDay      = 24
 	neglectThreshold = 30.0
+	debounceWindow   = 30 * time.Minute
 )
 
 type Service struct {
@@ -49,8 +50,11 @@ func NewService(db *sql.DB, discogsClient *discogs.Client, clock time2.Clock) *S
 	}
 }
 
-func (s *Service) ListVinyls(ctx context.Context) (dto.VinylRecordSlice, error) {
-	records, err := models.VinylRecords().All(ctx, s.db)
+func (s *Service) ListVinyls(ctx context.Context, userID string) (dto.VinylRecordSlice, error) {
+	records, err := models.VinylRecords(
+		models.VinylRecordWhere.UserID.EQ(userID),
+		qm.OrderBy(models.VinylRecordColumns.Artist+", "+models.VinylRecordColumns.Title),
+	).All(ctx, s.db)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +95,20 @@ func (s *Service) SearchVinyls(ctx context.Context, query string) (dto.VinylReco
 	return dtos, nil
 }
 
-func (s *Service) AddVinyl(ctx context.Context, discogsID int) (*dto.VinylRecord, error) {
+// AddVinyl imports a Discogs release into the user's collection. Adding a release the user
+// already owns returns the existing record.
+func (s *Service) AddVinyl(ctx context.Context, userID string, discogsID int) (*dto.VinylRecord, error) {
+	existing, err := models.VinylRecords(
+		models.VinylRecordWhere.UserID.EQ(userID),
+		models.VinylRecordWhere.DiscogsID.EQ(discogsID),
+	).One(ctx, s.db)
+	if err == nil {
+		return dto.VinylRecordFromModel(existing), nil
+	}
+	if !errors.Is(err, sql.ErrNoRows) {
+		return nil, errors.Wrap(err, "failed to check for existing record")
+	}
+
 	// 1. Fetch from Discogs
 	release, err := s.discogsClient.GetRelease(ctx, discogsID)
 	if err != nil {
@@ -114,6 +131,7 @@ func (s *Service) AddVinyl(ctx context.Context, discogsID int) (*dto.VinylRecord
 	defer func() { _ = tx.Rollback() }()
 
 	record := &models.VinylRecord{
+		UserID:    userID,
 		Title:     release.Title,
 		Artist:    artistName,
 		DiscogsID: discogsID,
@@ -173,48 +191,46 @@ func (s *Service) AddVinyl(ctx context.Context, discogsID int) (*dto.VinylRecord
 	return dto.VinylRecordFromModel(record), nil
 }
 
-func (s *Service) RegisterPlay(ctx context.Context, userID string, artist, title string) (*dto.TrackPlay, error) {
-	// 1. Find the track in our DB
-	track, err := models.Tracks(
-		db.InnerJoin(models.TableNames.Tracks, models.TrackColumns.VinylSideID, models.TableNames.VinylSides, models.VinylSideColumns.ID),
-		db.InnerJoin(models.TableNames.VinylSides, models.VinylSideColumns.VinylRecordID, models.TableNames.VinylRecords, models.VinylRecordColumns.ID),
-		db.ILike(title, models.TableNames.Tracks, models.TrackColumns.Title),
-		db.ILike(artist, models.TableNames.VinylRecords, models.VinylRecordColumns.Artist),
-		qm.Load(models.TrackRels.VinylSide),
-	).One(ctx, s.db)
-
+// RegisterPlay records that the user played a track, identified by the artist and title a
+// recognition service (or the user) reported. Plays of the same track within the debounce window
+// are not recorded again; the earlier play is returned with Debounced set.
+func (s *Service) RegisterPlay(ctx context.Context, userID string, artist, title string) (*dto.PlayResult, error) {
+	track, err := s.findTrack(ctx, userID, artist, title)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, ErrTrackNotFound
-		}
-		return nil, errors.Wrap(err, "failed to find track")
+		return nil, err
+	}
+	side := track.R.VinylSide
+	record := side.R.VinylRecord
+
+	result := &dto.PlayResult{
+		Title:       track.Title,
+		Artist:      record.Artist,
+		RecordTitle: record.Title,
+		SideLabel:   side.SideLabel,
+		Position:    track.Position,
+		CoverImage:  record.CoverImage.String,
 	}
 
-	// 2. Debouncing check (30 minutes)
 	lastPlay, err := models.TrackPlays(
 		models.TrackPlayWhere.UserID.EQ(userID),
 		models.TrackPlayWhere.TrackID.EQ(track.ID),
 		db.OrderBy(types.OrderDirDesc, models.TableNames.TrackPlays, models.TrackPlayColumns.PlayedAt),
 		qm.Limit(1),
 	).One(ctx, s.db)
-
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, errors.Wrap(err, "failed to check for recent play")
 	}
 
-	if lastPlay != nil && lastPlay.PlayedAt.After(s.clock.Now().Add(-30*time.Minute)) {
-		log.Debug().Msg("Play ignored due to debounce")
-		return &dto.TrackPlay{
-			ID:       lastPlay.ID,
-			Title:    track.Title,
-			Artist:   artist,
-			PlayedAt: lastPlay.PlayedAt,
-		}, nil
+	if lastPlay != nil && lastPlay.PlayedAt.After(s.clock.Now().Add(-debounceWindow)) {
+		log.Debug().Int("track_id", track.ID).Msg("Play ignored due to debounce")
+		result.PlayID = lastPlay.ID
+		result.PlayedAt = lastPlay.PlayedAt
+		result.Debounced = true
+		return result, nil
 	}
 
 	var play *models.TrackPlay
 	err = db.WithTransaction(ctx, s.db, func(tx boil.ContextExecutor) error {
-		// 3. Record Play
 		play = &models.TrackPlay{
 			TrackID:  track.ID,
 			UserID:   userID,
@@ -224,28 +240,21 @@ func (s *Service) RegisterPlay(ctx context.Context, userID string, artist, title
 			return errors.Wrap(err, "failed to insert track play")
 		}
 
-		// 4. Update Play Count on the Side
-		side := track.R.VinylSide
 		side.PlayCount++
-		side.LastPlayedAt = null.TimeFrom(s.clock.Now())
-
+		side.LastPlayedAt = null.TimeFrom(play.PlayedAt)
 		if _, err := side.Update(ctx, tx, boil.Whitelist(models.VinylSideColumns.PlayCount, models.VinylSideColumns.LastPlayedAt, models.VinylSideColumns.UpdatedAt)); err != nil {
 			return errors.Wrap(err, "failed to update side play stats")
 		}
 
 		return nil
 	})
-
 	if err != nil {
 		return nil, err
 	}
 
-	return &dto.TrackPlay{
-		ID:       play.ID,
-		Title:    track.Title,
-		Artist:   artist,
-		PlayedAt: play.PlayedAt,
-	}, nil
+	result.PlayID = play.ID
+	result.PlayedAt = play.PlayedAt
+	return result, nil
 }
 
 func (s *Service) GetRecentPlays(ctx context.Context, userID string, limit int) (dto.RecentPlaysResponse, error) {
@@ -277,11 +286,13 @@ func (s *Service) GetRecentPlays(ctx context.Context, userID string, limit int) 
 	return dto.RecentPlaysResponse{Plays: results}, nil
 }
 
-func (s *Service) GetMistreated(ctx context.Context) (dto.MistreatedRecordSlice, error) {
+func (s *Service) GetMistreated(ctx context.Context, userID string) (dto.MistreatedRecordSlice, error) {
 	// NeglectScore = DaysOwned / (PlayCount + 1)
 	// DaysOwned = Now - CreatedAt
 
 	sides, err := models.VinylSides(
+		db.InnerJoin(models.TableNames.VinylSides, models.VinylSideColumns.VinylRecordID, models.TableNames.VinylRecords, models.VinylRecordColumns.ID),
+		models.VinylRecordWhere.UserID.EQ(userID),
 		qm.Load(models.VinylSideRels.VinylRecord),
 	).All(ctx, s.db)
 	if err != nil {
@@ -289,7 +300,7 @@ func (s *Service) GetMistreated(ctx context.Context) (dto.MistreatedRecordSlice,
 	}
 
 	var results dto.MistreatedRecordSlice
-	now := time.Now()
+	now := s.clock.Now()
 
 	for _, side := range sides {
 		if side.R == nil || side.R.VinylRecord == nil {
@@ -321,6 +332,60 @@ func (s *Service) GetMistreated(ctx context.Context) (dto.MistreatedRecordSlice,
 	}
 
 	return results, nil
+}
+
+// findTrack picks the user's track that best matches a recognized artist and title. If the same
+// track is on several records (album and compilation, reissues), the record the user played most
+// recently wins, as it is most likely still on the turntable.
+func (s *Service) findTrack(ctx context.Context, userID string, artist, title string) (*models.Track, error) {
+	tracks, err := models.Tracks(
+		db.InnerJoin(models.TableNames.Tracks, models.TrackColumns.VinylSideID, models.TableNames.VinylSides, models.VinylSideColumns.ID),
+		db.InnerJoin(models.TableNames.VinylSides, models.VinylSideColumns.VinylRecordID, models.TableNames.VinylRecords, models.VinylRecordColumns.ID),
+		models.VinylRecordWhere.UserID.EQ(userID),
+		qm.Load(qm.Rels(models.TrackRels.VinylSide, models.VinylSideRels.VinylRecord)),
+	).All(ctx, s.db)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to load collection tracks")
+	}
+
+	lastRecordID, err := s.lastPlayedRecordID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	var best *models.Track
+	bestScore := scoreNoMatch
+	for _, t := range tracks {
+		record := t.R.VinylSide.R.VinylRecord
+		score := matchScore(artist, title, t.Title, record.Artist)
+		if score == scoreNoMatch {
+			continue
+		}
+		if score > bestScore || (score == bestScore && record.ID == lastRecordID && best.R.VinylSide.R.VinylRecord.ID != lastRecordID) {
+			best = t
+			bestScore = score
+		}
+	}
+
+	if best == nil {
+		return nil, ErrTrackNotFound
+	}
+	return best, nil
+}
+
+func (s *Service) lastPlayedRecordID(ctx context.Context, userID string) (int, error) {
+	play, err := models.TrackPlays(
+		models.TrackPlayWhere.UserID.EQ(userID),
+		db.OrderBy(types.OrderDirDesc, models.TableNames.TrackPlays, models.TrackPlayColumns.PlayedAt),
+		qm.Load(qm.Rels(models.TrackPlayRels.Track, models.TrackRels.VinylSide)),
+	).One(ctx, s.db)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return 0, nil
+		}
+		return 0, errors.Wrap(err, "failed to find last played record")
+	}
+	return play.R.Track.R.VinylSide.VinylRecordID, nil
 }
 
 func (s *Service) downloadAndSaveCover(ctx context.Context, release *discogs.Release, discogsID int) string {

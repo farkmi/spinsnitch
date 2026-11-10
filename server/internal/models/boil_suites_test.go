@@ -13,6 +13,7 @@ import "testing"
 // Separating the tests thusly grants avoidance of Postgres deadlocks.
 func TestParent(t *testing.T) {
 	t.Run("AccessTokens", testAccessTokens)
+	t.Run("APIKeys", testAPIKeys)
 	t.Run("AppUserProfiles", testAppUserProfiles)
 	t.Run("ConfirmationTokens", testConfirmationTokens)
 	t.Run("PasswordResetTokens", testPasswordResetTokens)
@@ -27,6 +28,7 @@ func TestParent(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 	t.Run("AccessTokens", testAccessTokensDelete)
+	t.Run("APIKeys", testAPIKeysDelete)
 	t.Run("AppUserProfiles", testAppUserProfilesDelete)
 	t.Run("ConfirmationTokens", testConfirmationTokensDelete)
 	t.Run("PasswordResetTokens", testPasswordResetTokensDelete)
@@ -41,6 +43,7 @@ func TestDelete(t *testing.T) {
 
 func TestQueryDeleteAll(t *testing.T) {
 	t.Run("AccessTokens", testAccessTokensQueryDeleteAll)
+	t.Run("APIKeys", testAPIKeysQueryDeleteAll)
 	t.Run("AppUserProfiles", testAppUserProfilesQueryDeleteAll)
 	t.Run("ConfirmationTokens", testConfirmationTokensQueryDeleteAll)
 	t.Run("PasswordResetTokens", testPasswordResetTokensQueryDeleteAll)
@@ -55,6 +58,7 @@ func TestQueryDeleteAll(t *testing.T) {
 
 func TestSliceDeleteAll(t *testing.T) {
 	t.Run("AccessTokens", testAccessTokensSliceDeleteAll)
+	t.Run("APIKeys", testAPIKeysSliceDeleteAll)
 	t.Run("AppUserProfiles", testAppUserProfilesSliceDeleteAll)
 	t.Run("ConfirmationTokens", testConfirmationTokensSliceDeleteAll)
 	t.Run("PasswordResetTokens", testPasswordResetTokensSliceDeleteAll)
@@ -69,6 +73,7 @@ func TestSliceDeleteAll(t *testing.T) {
 
 func TestExists(t *testing.T) {
 	t.Run("AccessTokens", testAccessTokensExists)
+	t.Run("APIKeys", testAPIKeysExists)
 	t.Run("AppUserProfiles", testAppUserProfilesExists)
 	t.Run("ConfirmationTokens", testConfirmationTokensExists)
 	t.Run("PasswordResetTokens", testPasswordResetTokensExists)
@@ -83,6 +88,7 @@ func TestExists(t *testing.T) {
 
 func TestFind(t *testing.T) {
 	t.Run("AccessTokens", testAccessTokensFind)
+	t.Run("APIKeys", testAPIKeysFind)
 	t.Run("AppUserProfiles", testAppUserProfilesFind)
 	t.Run("ConfirmationTokens", testConfirmationTokensFind)
 	t.Run("PasswordResetTokens", testPasswordResetTokensFind)
@@ -97,6 +103,7 @@ func TestFind(t *testing.T) {
 
 func TestBind(t *testing.T) {
 	t.Run("AccessTokens", testAccessTokensBind)
+	t.Run("APIKeys", testAPIKeysBind)
 	t.Run("AppUserProfiles", testAppUserProfilesBind)
 	t.Run("ConfirmationTokens", testConfirmationTokensBind)
 	t.Run("PasswordResetTokens", testPasswordResetTokensBind)
@@ -111,6 +118,7 @@ func TestBind(t *testing.T) {
 
 func TestOne(t *testing.T) {
 	t.Run("AccessTokens", testAccessTokensOne)
+	t.Run("APIKeys", testAPIKeysOne)
 	t.Run("AppUserProfiles", testAppUserProfilesOne)
 	t.Run("ConfirmationTokens", testConfirmationTokensOne)
 	t.Run("PasswordResetTokens", testPasswordResetTokensOne)
@@ -125,6 +133,7 @@ func TestOne(t *testing.T) {
 
 func TestAll(t *testing.T) {
 	t.Run("AccessTokens", testAccessTokensAll)
+	t.Run("APIKeys", testAPIKeysAll)
 	t.Run("AppUserProfiles", testAppUserProfilesAll)
 	t.Run("ConfirmationTokens", testConfirmationTokensAll)
 	t.Run("PasswordResetTokens", testPasswordResetTokensAll)
@@ -139,6 +148,7 @@ func TestAll(t *testing.T) {
 
 func TestCount(t *testing.T) {
 	t.Run("AccessTokens", testAccessTokensCount)
+	t.Run("APIKeys", testAPIKeysCount)
 	t.Run("AppUserProfiles", testAppUserProfilesCount)
 	t.Run("ConfirmationTokens", testConfirmationTokensCount)
 	t.Run("PasswordResetTokens", testPasswordResetTokensCount)
@@ -154,6 +164,8 @@ func TestCount(t *testing.T) {
 func TestInsert(t *testing.T) {
 	t.Run("AccessTokens", testAccessTokensInsert)
 	t.Run("AccessTokens", testAccessTokensInsertWhitelist)
+	t.Run("APIKeys", testAPIKeysInsert)
+	t.Run("APIKeys", testAPIKeysInsertWhitelist)
 	t.Run("AppUserProfiles", testAppUserProfilesInsert)
 	t.Run("AppUserProfiles", testAppUserProfilesInsertWhitelist)
 	t.Run("ConfirmationTokens", testConfirmationTokensInsert)
@@ -178,6 +190,7 @@ func TestInsert(t *testing.T) {
 
 func TestReload(t *testing.T) {
 	t.Run("AccessTokens", testAccessTokensReload)
+	t.Run("APIKeys", testAPIKeysReload)
 	t.Run("AppUserProfiles", testAppUserProfilesReload)
 	t.Run("ConfirmationTokens", testConfirmationTokensReload)
 	t.Run("PasswordResetTokens", testPasswordResetTokensReload)
@@ -192,6 +205,7 @@ func TestReload(t *testing.T) {
 
 func TestReloadAll(t *testing.T) {
 	t.Run("AccessTokens", testAccessTokensReloadAll)
+	t.Run("APIKeys", testAPIKeysReloadAll)
 	t.Run("AppUserProfiles", testAppUserProfilesReloadAll)
 	t.Run("ConfirmationTokens", testConfirmationTokensReloadAll)
 	t.Run("PasswordResetTokens", testPasswordResetTokensReloadAll)
@@ -206,6 +220,7 @@ func TestReloadAll(t *testing.T) {
 
 func TestSelect(t *testing.T) {
 	t.Run("AccessTokens", testAccessTokensSelect)
+	t.Run("APIKeys", testAPIKeysSelect)
 	t.Run("AppUserProfiles", testAppUserProfilesSelect)
 	t.Run("ConfirmationTokens", testConfirmationTokensSelect)
 	t.Run("PasswordResetTokens", testPasswordResetTokensSelect)
@@ -220,6 +235,7 @@ func TestSelect(t *testing.T) {
 
 func TestUpdate(t *testing.T) {
 	t.Run("AccessTokens", testAccessTokensUpdate)
+	t.Run("APIKeys", testAPIKeysUpdate)
 	t.Run("AppUserProfiles", testAppUserProfilesUpdate)
 	t.Run("ConfirmationTokens", testConfirmationTokensUpdate)
 	t.Run("PasswordResetTokens", testPasswordResetTokensUpdate)
@@ -234,6 +250,7 @@ func TestUpdate(t *testing.T) {
 
 func TestSliceUpdateAll(t *testing.T) {
 	t.Run("AccessTokens", testAccessTokensSliceUpdateAll)
+	t.Run("APIKeys", testAPIKeysSliceUpdateAll)
 	t.Run("AppUserProfiles", testAppUserProfilesSliceUpdateAll)
 	t.Run("ConfirmationTokens", testConfirmationTokensSliceUpdateAll)
 	t.Run("PasswordResetTokens", testPasswordResetTokensSliceUpdateAll)

@@ -8,6 +8,20 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// Audio MIME types accepted for recognition uploads.
+var allowedAudioMIMETypes = []string{
+	"audio/mpeg",
+	"audio/x-wav",
+	"audio/wav",
+	"audio/ogg",
+	"audio/mp4",
+	"audio/aac",
+	"audio/flac",
+	"audio/webm",
+	"video/webm",
+	"application/octet-stream", // some clients send octet-stream
+}
+
 func PostRecognizeRoute(s *api.Server) *echo.Route {
 	return s.Router.APIV1Vinyl.POST("/recognize", postRecognizeHandler(s))
 }
@@ -17,21 +31,7 @@ func postRecognizeHandler(s *api.Server) echo.HandlerFunc {
 		ctx := c.Request().Context()
 		log := util.LogFromEchoContext(c)
 
-		// Audio MIME types usually allowed
-		allowedMimeTypes := []string{
-			"audio/mpeg",
-			"audio/x-wav",
-			"audio/wav",
-			"audio/ogg",
-			"audio/mp4",
-			"audio/aac",
-			"audio/flac",
-			"audio/webm",
-			"video/webm",
-			"application/octet-stream", // some clients send octet-stream
-		}
-
-		fileHeader, file, _, err := util.ParseFileUpload(c, "file", allowedMimeTypes)
+		fileHeader, file, _, err := util.ParseFileUpload(c, "file", allowedAudioMIMETypes)
 		if err != nil {
 			return err
 		}

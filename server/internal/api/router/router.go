@@ -236,14 +236,11 @@ func Init(s *api.Server) error {
 		WellKnown: s.Echo.Group("/.well-known"),
 
 		// Your other endpoints, typically secured by bearer auth, available at /api/v1/**
-		APIV1Push:  s.Echo.Group("/api/v1/push", middleware.Auth(s)),
-		APIV1Vinyl: s.Echo.Group("/api/v1/vinyls", middleware.Auth(s)),
-		APIV1Webhook: s.Echo.Group("/api/v1/webhooks", echoMiddleware.KeyAuthWithConfig(echoMiddleware.KeyAuthConfig{
-			KeyLookup: "header:X-Management-Secret,query:mgmt-secret",
-			Validator: func(key string, _ echo.Context) (bool, error) {
-				return key == s.Config.Management.Secret, nil
-			},
-		})),
+		APIV1Push:    s.Echo.Group("/api/v1/push", middleware.Auth(s)),
+		APIV1APIKeys: s.Echo.Group("/api/v1/api-keys", middleware.Auth(s)),
+		APIV1Vinyl:   s.Echo.Group("/api/v1/vinyls", middleware.Auth(s)),
+		// Integrations (e.g. Home Assistant) authenticate with a per-user API key.
+		APIV1Webhook: s.Echo.Group("/api/v1/webhooks", middleware.APIKeyAuth(s)),
 	}
 
 	// Serve static files (covers etc)

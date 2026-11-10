@@ -9,6 +9,7 @@ import "testing"
 // or deadlocks can occur.
 func TestToOne(t *testing.T) {
 	t.Run("AccessTokenToUserUsingUser", testAccessTokenToOneUserUsingUser)
+	t.Run("APIKeyToUserUsingUser", testAPIKeyToOneUserUsingUser)
 	t.Run("AppUserProfileToUserUsingUser", testAppUserProfileToOneUserUsingUser)
 	t.Run("ConfirmationTokenToUserUsingUser", testConfirmationTokenToOneUserUsingUser)
 	t.Run("PasswordResetTokenToUserUsingUser", testPasswordResetTokenToOneUserUsingUser)
@@ -17,6 +18,7 @@ func TestToOne(t *testing.T) {
 	t.Run("TrackPlayToTrackUsingTrack", testTrackPlayToOneTrackUsingTrack)
 	t.Run("TrackPlayToUserUsingUser", testTrackPlayToOneUserUsingUser)
 	t.Run("TrackToVinylSideUsingVinylSide", testTrackToOneVinylSideUsingVinylSide)
+	t.Run("VinylRecordToUserUsingUser", testVinylRecordToOneUserUsingUser)
 	t.Run("VinylSideToVinylRecordUsingVinylRecord", testVinylSideToOneVinylRecordUsingVinylRecord)
 }
 
@@ -31,11 +33,13 @@ func TestOneToOne(t *testing.T) {
 func TestToMany(t *testing.T) {
 	t.Run("TrackToTrackPlays", testTrackToManyTrackPlays)
 	t.Run("UserToAccessTokens", testUserToManyAccessTokens)
+	t.Run("UserToAPIKeys", testUserToManyAPIKeys)
 	t.Run("UserToConfirmationTokens", testUserToManyConfirmationTokens)
 	t.Run("UserToPasswordResetTokens", testUserToManyPasswordResetTokens)
 	t.Run("UserToPushTokens", testUserToManyPushTokens)
 	t.Run("UserToRefreshTokens", testUserToManyRefreshTokens)
 	t.Run("UserToTrackPlays", testUserToManyTrackPlays)
+	t.Run("UserToVinylRecords", testUserToManyVinylRecords)
 	t.Run("VinylRecordToVinylSides", testVinylRecordToManyVinylSides)
 	t.Run("VinylSideToTracks", testVinylSideToManyTracks)
 }
@@ -44,6 +48,7 @@ func TestToMany(t *testing.T) {
 // or deadlocks can occur.
 func TestToOneSet(t *testing.T) {
 	t.Run("AccessTokenToUserUsingAccessTokens", testAccessTokenToOneSetOpUserUsingUser)
+	t.Run("APIKeyToUserUsingAPIKeys", testAPIKeyToOneSetOpUserUsingUser)
 	t.Run("AppUserProfileToUserUsingAppUserProfile", testAppUserProfileToOneSetOpUserUsingUser)
 	t.Run("ConfirmationTokenToUserUsingConfirmationTokens", testConfirmationTokenToOneSetOpUserUsingUser)
 	t.Run("PasswordResetTokenToUserUsingPasswordResetTokens", testPasswordResetTokenToOneSetOpUserUsingUser)
@@ -52,6 +57,7 @@ func TestToOneSet(t *testing.T) {
 	t.Run("TrackPlayToTrackUsingTrackPlays", testTrackPlayToOneSetOpTrackUsingTrack)
 	t.Run("TrackPlayToUserUsingTrackPlays", testTrackPlayToOneSetOpUserUsingUser)
 	t.Run("TrackToVinylSideUsingTracks", testTrackToOneSetOpVinylSideUsingVinylSide)
+	t.Run("VinylRecordToUserUsingVinylRecords", testVinylRecordToOneSetOpUserUsingUser)
 	t.Run("VinylSideToVinylRecordUsingVinylSides", testVinylSideToOneSetOpVinylRecordUsingVinylRecord)
 }
 
@@ -74,11 +80,13 @@ func TestOneToOneRemove(t *testing.T) {}
 func TestToManyAdd(t *testing.T) {
 	t.Run("TrackToTrackPlays", testTrackToManyAddOpTrackPlays)
 	t.Run("UserToAccessTokens", testUserToManyAddOpAccessTokens)
+	t.Run("UserToAPIKeys", testUserToManyAddOpAPIKeys)
 	t.Run("UserToConfirmationTokens", testUserToManyAddOpConfirmationTokens)
 	t.Run("UserToPasswordResetTokens", testUserToManyAddOpPasswordResetTokens)
 	t.Run("UserToPushTokens", testUserToManyAddOpPushTokens)
 	t.Run("UserToRefreshTokens", testUserToManyAddOpRefreshTokens)
 	t.Run("UserToTrackPlays", testUserToManyAddOpTrackPlays)
+	t.Run("UserToVinylRecords", testUserToManyAddOpVinylRecords)
 	t.Run("VinylRecordToVinylSides", testVinylRecordToManyAddOpVinylSides)
 	t.Run("VinylSideToTracks", testVinylSideToManyAddOpTracks)
 }

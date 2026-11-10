@@ -3,6 +3,7 @@ package handlers
 
 import (
 	"github.com/farkmi/spinsnitch-server/internal/api"
+	"github.com/farkmi/spinsnitch-server/internal/api/handlers/apikeys"
 	"github.com/farkmi/spinsnitch-server/internal/api/handlers/auth"
 	"github.com/farkmi/spinsnitch-server/internal/api/handlers/common"
 	"github.com/farkmi/spinsnitch-server/internal/api/handlers/push"
@@ -14,6 +15,9 @@ import (
 func AttachAllRoutes(s *api.Server) {
 	// attach our routes
 	s.Router.Routes = []*echo.Route{
+		apikeys.DeleteAPIKeyRoute(s),
+		apikeys.GetAPIKeysRoute(s),
+		apikeys.PostAPIKeyRoute(s),
 		auth.DeleteUserAccountRoute(s),
 		auth.GetCompleteRegisterRoute(s),
 		auth.GetUserInfoRoute(s),
@@ -38,6 +42,7 @@ func AttachAllRoutes(s *api.Server) {
 		vinyl.PostRecognizeRoute(s),
 		vinyl.PostVinylRoute(s),
 		vinyl.PostWebhookPlayRoute(s),
+		vinyl.PostWebhookRecognizeRoute(s),
 		wellknown.GetAndroidDigitalAssetLinksRoute(s),
 		wellknown.GetAppleAppSiteAssociationRoute(s),
 	}

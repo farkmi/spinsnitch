@@ -80,6 +80,61 @@ paths:
             responses:
                 "200":
                     description: Android Digital Asset Links
+    /api/v1/api-keys:
+        get:
+            tags:
+                - api-keys
+            summary: List the user's API keys
+            operationId: GetApiKeysRoute
+            responses:
+                "200":
+                    description: API keys of the user (without the keys themselves)
+                    schema:
+                        type: array
+                        items:
+                            $ref: '#/definitions/apiKey'
+            security:
+                - Bearer: []
+        post:
+            description: Creates a long-lived key for integrations such as Home Assistant. The full key is only returned in this response.
+            tags:
+                - api-keys
+            summary: Create an API key
+            operationId: PostApiKeyRoute
+            parameters:
+                - name: Payload
+                  in: body
+                  schema:
+                    $ref: '#/definitions/postApiKeyPayload'
+            responses:
+                "201":
+                    description: Created API key
+                    schema:
+                        $ref: '#/definitions/createdApiKey'
+                "400":
+                    description: Bad Request
+            security:
+                - Bearer: []
+    /api/v1/api-keys/{id}:
+        delete:
+            tags:
+                - api-keys
+            summary: Revoke an API key
+            operationId: DeleteApiKeyRoute
+            parameters:
+                - type: string
+                  format: uuid4
+                  description: ID of the API key
+                  name: id
+                  in: path
+                  required: true
+            responses:
+                "204":
+                    description: API key revoked
+                "404":
+                    description: API key not found
+            security:
+                - Bearer: []
     /api/v1/auth/account:
         delete:
             description: Completely delete the user account. This action is irreversible and therefore requires additional password authentication.
@@ -539,6 +594,53 @@ paths:
                     description: Internal Server Error
             security:
                 - Bearer: []
+    /api/v1/webhooks/play:
+        post:
+            description: Registers a play of a track in the API key owner's collection, matched by artist and title.
+            tags:
+                - webhooks
+            summary: Register a play (integrations)
+            operationId: PostWebhookPlayRoute
+            parameters:
+                - name: Payload
+                  in: body
+                  schema:
+                    $ref: '#/definitions/playPayload'
+            responses:
+                "200":
+                    description: Play registered (or debounced)
+                    schema:
+                        $ref: '#/definitions/playResult'
+                "404":
+                    description: Track not found in the collection
+            security:
+                - ApiKey: []
+    /api/v1/webhooks/recognize:
+        post:
+            description: |-
+                Identifies the music in an audio clip and, if it is a track in the API key owner's
+                collection, registers a play. Unrecognised clips and tracks outside the collection are
+                not errors; the response says how far it got.
+            consumes:
+                - multipart/form-data
+            tags:
+                - webhooks
+            summary: Recognize an audio clip and register the play (integrations)
+            operationId: PostWebhookRecognizeRoute
+            parameters:
+                - type: file
+                  name: file
+                  in: formData
+                  required: true
+            responses:
+                "200":
+                    description: Recognition and play result
+                    schema:
+                        $ref: '#/definitions/recognizeAndPlayResult'
+                "400":
+                    description: Bad Request
+            security:
+                - ApiKey: []
     /swagger.yml:
         get:
             description: |-
@@ -554,6 +656,44 @@ paths:
                 "200":
                     description: OK
 definitions:
+    apiKey:
+        type: object
+        required:
+            - id
+            - name
+            - keyPrefix
+            - createdAt
+        properties:
+            createdAt:
+                type: string
+                format: date-time
+            id:
+                type: string
+                format: uuid4
+                example: 4a5b8d1e-6c1f-4b8a-9d2e-3f7c6a1b2c3d
+            keyPrefix:
+                description: First characters of the key, to tell keys apart without revealing them
+                type: string
+                example: ssk_Ab3dE
+            lastUsedAt:
+                type: string
+                format: date-time
+            name:
+                description: Label to recognise the key by, e.g. the integration using it
+                type: string
+                example: Home Assistant
+    createdApiKey:
+        type: object
+        required:
+            - apiKey
+            - key
+        properties:
+            apiKey:
+                $ref: '#/definitions/apiKey'
+            key:
+                description: The full key. It is only returned once and cannot be retrieved later.
+                type: string
+                example: ssk_Ab3dEfGhIjKlMnOpQrStUvWxYz0123456789AbCdEfG
     deleteUserAccountPayload:
         type: object
         required:
@@ -638,6 +778,48 @@ definitions:
                 type: string
             title:
                 type: string
+    playResult:
+        type: object
+        required:
+            - playId
+            - title
+            - artist
+            - recordTitle
+            - sideLabel
+            - position
+            - playedAt
+            - debounced
+        properties:
+            artist:
+                type: string
+            coverImage:
+                type: string
+            debounced:
+                description: True if the track was already played within the debounce window, so no new play was recorded and playId refers to the earlier play
+                type: boolean
+            playId:
+                type: integer
+            playedAt:
+                type: string
+                format: date-time
+            position:
+                type: string
+            recordTitle:
+                type: string
+            sideLabel:
+                type: string
+            title:
+                type: string
+    postApiKeyPayload:
+        type: object
+        required:
+            - name
+        properties:
+            name:
+                type: string
+                maxLength: 100
+                minLength: 1
+                example: Home Assistant
     postChangePasswordPayload:
         type: object
         required:
@@ -869,6 +1051,28 @@ definitions:
             success:
                 type: boolean
                 x-order: 4
+    recognizeAndPlayResult:
+        type: object
+        required:
+            - recognized
+            - matched
+        properties:
+            coverArt:
+                type: string
+            matched:
+                description: Whether the identified track is in the collection (and a play was registered)
+                type: boolean
+            play:
+                $ref: '#/definitions/playResult'
+            recognized:
+                description: Whether the audio was identified at all
+                type: boolean
+            recognizedArtist:
+                type: string
+            recognizedTitle:
+                type: string
+            shazamUrl:
+                type: string
     registerResponse:
         type: object
         required:
@@ -963,6 +1167,13 @@ definitions:
             year:
                 type: integer
 parameters:
+    apiKeyIdParam:
+        type: string
+        format: uuid4
+        description: ID of the API key
+        name: id
+        in: path
+        required: true
     registrationTokenParam:
         type: string
         format: uuid4
@@ -988,6 +1199,14 @@ responses:
         schema:
             $ref: '#/definitions/publicHttpValidationError'
 securityDefinitions:
+    ApiKey:
+        description: |-
+            Per-user API key for integrations (create one via POST /api/v1/api-keys), **must** include "Bearer " prefix.
+            Example: `Bearer ssk_Ab3dEfGhIjKlMnOpQrStUvWxYz0123456789AbCdEfG`
+        type: apiKey
+        name: Authorization
+        in: header
+        x-keyPrefix: 'Bearer '
     Bearer:
         description: |-
             Access token for application access, **must** include "Bearer " prefix.

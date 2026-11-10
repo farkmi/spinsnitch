@@ -10,6 +10,7 @@ import (
 	"github.com/farkmi/spinsnitch-server/internal/config"
 	"github.com/farkmi/spinsnitch-server/internal/data/local"
 	"github.com/farkmi/spinsnitch-server/internal/metrics"
+	"github.com/farkmi/spinsnitch-server/internal/recognition"
 	"github.com/google/wire"
 )
 
@@ -28,6 +29,8 @@ var serviceSet = wire.NewSet(
 	NewDiscogsClient,
 	NewVinylService,
 	NewRecognitionService,
+	wire.Bind(new(Recognizer), new(*recognition.Service)),
+	NewAPIKeyService,
 )
 
 var authServiceSet = wire.NewSet(
